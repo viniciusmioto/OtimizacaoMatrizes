@@ -286,7 +286,12 @@ int matrix_refinement (matrix_t *inv_matrix, matrix_t *matrix, matrix_t *l_matri
 
     // passos do refinamento
     for (count = 0; count < iterations; count++) {
+        LIKWID_MARKER_INIT;
+        LIKWID_MARKER_START ("calc-residue");
         calc_residue (residue_matrix, matrix, inv_matrix);
+        LIKWID_MARKER_STOP ("calc-residue");
+        LIKWID_MARKER_CLOSE;
+        
         apply_pivot_steps (residue_matrix, steps);
 
         act_iter_time = timestamp ();

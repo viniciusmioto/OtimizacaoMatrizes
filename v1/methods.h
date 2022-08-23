@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <float.h>
+#include <likwid.h>
 
 #include "matrix.h"
 #include "utils.h"

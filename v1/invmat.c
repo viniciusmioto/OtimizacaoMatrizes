@@ -1,3 +1,5 @@
+#include <likwid.h>
+
 #include "matrix.h"
 #include "utils.h"
 #include "methods.h"
@@ -56,8 +58,13 @@ int main (int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
     
+    LIKWID_MARKER_INIT;
+    LIKWID_MARKER_START ("lu-factorization");
     // Processo de calculo da inversa
     error = lu_factorization (u_matrix, l_matrix, pivot_steps, &lu_time);
+    LIKWID_MARKER_STOP ("lu-factorization");
+    LIKWID_MARKER_CLOSE;
+    
     if (error != 0) {
         emit_error (error, parser, norma_vet, input_matrix, l_matrix, u_matrix, inv_matrix, pivot_steps);
         return EXIT_FAILURE;
