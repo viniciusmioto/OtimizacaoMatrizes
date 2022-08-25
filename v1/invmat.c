@@ -59,10 +59,10 @@ int main (int argc, char *argv[]) {
     }
     
     LIKWID_MARKER_INIT;
-    LIKWID_MARKER_START ("lu-factorization");
+    LIKWID_MARKER_START ("operation-1");
     // Processo de calculo da inversa
     error = lu_factorization (u_matrix, l_matrix, pivot_steps, &lu_time);
-    LIKWID_MARKER_STOP ("lu-factorization");
+    LIKWID_MARKER_STOP ("operation-1");
     LIKWID_MARKER_CLOSE;
     
     if (error != 0) {
