@@ -27,7 +27,7 @@ int main (int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
     
-    // Caso o parametro n for mandado -> gera uma matriz aleatoria
+    // Caso o parametro n for mandado, gera uma matriz aleatoria
     if (parser->n != -1) {
         if (! (input_matrix = alloc_matrix (parser->n))) error = ALLOC_ERROR;
         else random_matrix (input_matrix, COEF_MAX);

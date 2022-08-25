@@ -69,13 +69,12 @@ matrix_t *read_from_file (parser_t *parser) {
     if (! (input_file = fopen (parser->input, "r"))) 
         return NULL;
 
-    fscanf (input_file, "%d" , &n);
-    if (! (matrix = alloc_matrix (n)))
-        return NULL;
+    if (! (fscanf (input_file, "%d" , &n))) return NULL;
+    if (! (matrix = alloc_matrix (n))) return NULL;
 
     for(line = 0; line < n; ++line)
         for (col = 0; col < n; ++col)
-            fscanf (input_file, "%lg" , &matrix->coef[line][col]);
+            if (! (fscanf (input_file, "%lg" , &matrix->coef[line][col]))) return NULL;
 
     fclose (input_file);
     return matrix;
@@ -86,13 +85,13 @@ matrix_t *read_from_terminal () {
     unsigned int n;
     int line, col;
     
-    scanf ("%d",&n);
+    if (! (scanf ("%d",&n))) return NULL;
     if (! (matrix = alloc_matrix (n)))
         return NULL;
     
     for(line = 0; line < n; ++line)
         for (col = 0; col < n; ++col)
-            scanf ("%lg", &matrix->coef[line][col]);
+            if (! (scanf ("%lg", &matrix->coef[line][col]))) return NULL;
 
     return matrix;
 }

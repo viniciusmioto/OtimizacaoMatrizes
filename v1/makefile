@@ -1,7 +1,10 @@
 SHELL = /bin/sh
 
-FLAGS = -g -Wall
-LIBS = -lm
+LIKWID_C = -DLIKWID_PERFMON -I${LIKWID_INCLUDE}
+LIKWID_O = -L${LIKWID_LIB} -llikwid
+
+FLAGS = -g -Wall -O3 -mavx2 -march=native $(LIKWID_C)
+LIBS = -lm $(LIKWID_O)
 
 # Funções gerais
 all: invmat
