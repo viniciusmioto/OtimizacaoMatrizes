@@ -245,9 +245,8 @@ int calc_inverse_matrix (matrix_t *inv_matrix, matrix_t *l_matrix, matrix_t *u_m
     generate_identity_matrix (i_matrix);
 
     apply_pivot_steps (i_matrix, steps);
+    LIKWID_MARKER_START ("restrosub-calc-inv");
     for (count = 0; count < size; count++) {
-        LIKWID_MARKER_INIT;
-        LIKWID_MARKER_START ("operation-1");
         if (inv_retro_subs (l_matrix, i_matrix, temp_sol, count) == NAN_INF_ERROR)
             return NAN_INF_ERROR;
 
@@ -257,9 +256,8 @@ int calc_inverse_matrix (matrix_t *inv_matrix, matrix_t *l_matrix, matrix_t *u_m
 
         if (retro_subs (u_matrix, inv_matrix, solution, count) == NAN_INF_ERROR)
             return NAN_INF_ERROR;
-        LIKWID_MARKER_STOP ("operation-1");
-        LIKWID_MARKER_CLOSE;
     }
+    LIKWID_MARKER_STOP ("restrosub-calc-inv");
     
     free_matrix (solution);
     free (temp_sol);
@@ -290,18 +288,15 @@ int matrix_refinement (matrix_t *inv_matrix, matrix_t *matrix, matrix_t *l_matri
 
     // passos do refinamento
     for (count = 0; count < iterations; count++) {
-        LIKWID_MARKER_INIT;
-        LIKWID_MARKER_START ("operation-2");
+        LIKWID_MARKER_START ("calc-residue");
         calc_residue (residue_matrix, matrix, inv_matrix);
-        LIKWID_MARKER_STOP ("operation-2");
-        LIKWID_MARKER_CLOSE;
+        LIKWID_MARKER_STOP ("calc-residue");
         
         apply_pivot_steps (residue_matrix, steps);
 
         act_iter_time = timestamp ();
+        LIKWID_MARKER_START ("retrosubs-refinement");
         for (ls_count = 0; ls_count < size; ls_count++) {
-            LIKWID_MARKER_INIT;
-            LIKWID_MARKER_START ("operation-1");
             if (inv_retro_subs (l_matrix, residue_matrix, temp_sol, ls_count) == NAN_INF_ERROR)
                 return NAN_INF_ERROR;
 
@@ -311,9 +306,8 @@ int matrix_refinement (matrix_t *inv_matrix, matrix_t *matrix, matrix_t *l_matri
 
             if (retro_subs (u_matrix, inv_matrix, solution, ls_count) == NAN_INF_ERROR)
                 return NAN_INF_ERROR;
-            LIKWID_MARKER_STOP ("operation-1");
-            LIKWID_MARKER_CLOSE;
         }
+        LIKWID_MARKER_STOP ("retrosubs-refinement");
         act_iter_time = timestamp () - act_iter_time;
 
         norma_vet[count] = calc_norma (residue_matrix, &act_residue_time);

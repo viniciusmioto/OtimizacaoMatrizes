@@ -17,6 +17,8 @@ int main (int argc, char *argv[]) {
 
     srand (20221);
 
+    LIKWID_MARKER_INIT;
+
     if (! (parser = init_parser ())) {
         fprintf (stderr, "Erro de alocação para a estrutura do parser!\n");
         return EXIT_FAILURE;
@@ -58,12 +60,10 @@ int main (int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
     
-    LIKWID_MARKER_INIT;
-    LIKWID_MARKER_START ("operation-1");
+    LIKWID_MARKER_START ("lu-factorization");
     // Processo de calculo da inversa
     error = lu_factorization (u_matrix, l_matrix, pivot_steps, &lu_time);
-    LIKWID_MARKER_STOP ("operation-1");
-    LIKWID_MARKER_CLOSE;
+    LIKWID_MARKER_STOP ("lu-factorization");
     
     if (error != 0) {
         emit_error (error, parser, norma_vet, input_matrix, l_matrix, u_matrix, inv_matrix, pivot_steps);
@@ -83,6 +83,8 @@ int main (int argc, char *argv[]) {
     }
 
     print_result (inv_matrix, norma_vet, lu_time, iter_time, residue_time, parser);
+
+    LIKWID_MARKER_CLOSE;
 
     free (parser);
     free (norma_vet);

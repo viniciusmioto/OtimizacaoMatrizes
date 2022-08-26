@@ -122,20 +122,21 @@ int print_result (matrix_t *inv_matrix, double *norma_vet, double lu_time, doubl
         fprintf (p_output,"\n\n");
         fclose (p_output);
     } else {
-        for (count = 0; count < parser->iterations; count++) 
-            fprintf (stdout, "iter %d: <||%.15g||>\n", (count + 1), norma_vet[count]);
+        // for (count = 0; count < parser->iterations; count++) 
+        //     fprintf (stdout, "iter %d: <||%.15g||>\n", (count + 1), norma_vet[count]);
 
         fprintf (stdout, "\nTempo LU: %lg\n", lu_time);
         fprintf (stdout, "Tempo iter: %lg\n", iter_time);
         fprintf (stdout, "Tempo residue: %lg\n\n", residue_time);
 
-        fprintf (stdout, "%d\n", size);
-        for(line = 0; line < size; line++) {
-            for(col = 0; col < size; col++)
-                fprintf (stdout, "%.15g ", inv_matrix->coef[line][col]);
-            fprintf (stdout, "\n");
-        }
-        fprintf (stdout,"\n\n");
+        // comentado para colocar so o tempos
+        // fprintf (stdout, "%d\n", size);
+        // for(line = 0; line < size; line++) {
+        //     for(col = 0; col < size; col++)
+        //         fprintf (stdout, "%.15g ", inv_matrix->coef[line][col]);
+        //     fprintf (stdout, "\n");
+        // }
+        // fprintf (stdout,"\n\n");
     }
     return EXIT_SUCCESS;
 }
