@@ -52,6 +52,6 @@ Mkfile.old
 dkms.conf
 
 invmat
-.ipynb*
-old*
+*.ipynb
 *.log
+*.csv
