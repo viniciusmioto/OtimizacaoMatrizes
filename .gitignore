@@ -53,5 +53,6 @@ dkms.conf
 
 invmat
 *.ipynb
+.ipynb_checkpoints
 *.log
 *.csv

@@ -8,7 +8,7 @@ groups = {
     'CACHE': [37, 63, 89, 115],
     'FLOPS_DP': [33, 55, 77, 99]
 }
-matrix_sizes = [32, 33, 64, 65]
+matrix_sizes = [32, 33, 64, 65, 128, 129, 256, 257, 512, 1000, 2000, 4000, 6000]
 versions = ['v1']
 
 df_time = pd.DataFrame(columns=['version', 'matrix_size', 'time-lu', 'time-iter','time-op2'])
@@ -76,10 +76,10 @@ df_mem['mem-op1'] = df_mem.loc[:,['lu-factorization','restrosub-calc-inv', 'retr
 df_time['time-op1'] = df_time.loc[:,['time-lu','time-iter']].sum(axis=1)
 
 print('creating time.csv')
-df_time.to_csv('./csvs/time.csv')
+df_time.to_csv('./csvs/time.csv', index=False)
 print('creating mem.csv')
-df_mem.to_csv('./csvs/mem.csv')
+df_mem.to_csv('./csvs/mem.csv', index=False)
 print('creating cache.csv')
-df_cache.to_csv('./csvs/cache.csv')
+df_cache.to_csv('./csvs/cache.csv', index=False)
 print('creating flops.csv')
-df_flops.to_csv('./csvs/flops.csv')
+df_flops.to_csv('./csvs/flops.csv', index=False)

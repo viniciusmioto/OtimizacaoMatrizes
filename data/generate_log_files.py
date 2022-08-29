@@ -2,7 +2,7 @@ import os
 
 versions = ['v1'] # incluir v2 depois
 # matrix_sizes = [32, 33, 64, 65, 128, 129, 256, 257, 512, 1000, 2000, 4000, 6000, 10000]
-matrix_sizes = [32, 33, 64, 65]
+matrix_sizes = [32, 33, 64, 65, 128, 129, 256, 257, 512]
 groups = ['MEM', 'CACHE', 'FLOPS_DP']
 
 for v in versions:
