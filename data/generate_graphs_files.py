@@ -13,6 +13,7 @@ for op in operations:
         df = pd.read_csv('./csvs/' + files[i] + '.csv')
         plt.figure(figsize=(15,8))
         ax = sns.lineplot(data=df, x='matrix_size', y=files[i] + '-' + op, hue='version', marker='o')
+        ax.set(yscale="log")
         ax.set_ylabel(y_labels[i])
         ax.set_xlabel('Tamanho da Matriz')
         ax.set_title(titles[i] + op)
