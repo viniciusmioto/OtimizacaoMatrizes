@@ -11,10 +11,10 @@ sns.set()
 for op in operations:
     for i in range(0, 4):  
         df = pd.read_csv('./csvs/' + files[i] + '.csv')
-        plt.figure(figsize=(15,8))
+        plt.figure(figsize=(7, 4.5))
         ax = sns.lineplot(data=df, x='matrix_size', y=files[i] + '-' + op, hue='version', marker='o')
-        ax.set(yscale="log")
+        ax.set(yscale='log')
         ax.set_ylabel(y_labels[i])
         ax.set_xlabel('Tamanho da Matriz')
         ax.set_title(titles[i] + op)
-        plt.savefig('./images/' + files[i] + '-' + op + '.svg')
+        plt.savefig('./images/' + files[i] + '-' + op + '.svg', bbox_inches='tight')
