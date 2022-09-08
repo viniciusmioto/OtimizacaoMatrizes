@@ -8,6 +8,7 @@ typedef struct steps {
     int line;
     int pivot;
 } steps_t;
+
 typedef struct pivot_steps {
     steps_t **list;
     int qtd;

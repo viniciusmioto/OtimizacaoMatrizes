@@ -72,7 +72,7 @@ int add_pivot_step (pivot_steps_t *pivot_steps, int line, int pivot) {
 */
 void apply_pivot_steps (matrix_t *matrix, pivot_steps_t *steps) {
     int count;
-    for (count = 0; count < steps->qtd;count++) 
+    for (count = 0; count < steps->qtd; count++) 
         swap_line (matrix, steps->list[count]->line, steps->list[count]->pivot);
 }
 
@@ -178,7 +178,7 @@ double calc_norma (matrix_t *residue_matrix, double *residue_time) {
     *residue_time = timestamp ();
     for (line = 0; line < size; line++)
         for (col = 0; col < size; col++) 
-            norma += pow (residue_matrix->coef[line][col], 2);
+            norma += residue_matrix->coef[line][col] * residue_matrix->coef[line][col];
 
     *residue_time = timestamp () - *residue_time;
     return sqrt (norma);

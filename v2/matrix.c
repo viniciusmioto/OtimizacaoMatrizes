@@ -1,12 +1,16 @@
 #include "matrix.h"
 
 matrix_t* alloc_matrix (unsigned int n) {
-    int i;
+    int i, internal_n;
     matrix_t *matrix = malloc (sizeof (matrix_t));
 
     if ( matrix ) {
         matrix->n = n;
-        matrix->coef = (double **) malloc(n * sizeof(double *));
+        internal_n = n;
+
+        if ((n % 2) == 0) internal_n++;
+
+        matrix->coef = (double **) malloc(internal_n * sizeof(double *));
 
         if (! (matrix->coef)) {
             free_matrix (matrix);
@@ -14,7 +18,7 @@ matrix_t* alloc_matrix (unsigned int n) {
         }
 
         // Matriz como vetor de N ponteiros para um único vetor com N*N elementos
-        matrix->coef[0] = (double *) malloc(n * n * sizeof(double));
+        matrix->coef[0] = (double *) malloc(internal_n * internal_n * sizeof(double));
         if (! (matrix->coef[0])) {
             free_matrix (matrix);
             return NULL;
