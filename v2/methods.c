@@ -99,7 +99,7 @@ double calc_determinant (matrix_t *matrix) {
     \param ls_b coluna da Matriz identidade (B do sistema linear)
     \return 0 em caso de sucesso. NAN_INF_ERROR em caso de falha.
 */
-int inv_retro_subs (matrix_t *l_matrix, matrix_t *b_matrix, double *solution, int ls_b) {    
+int inv_retro_subs (matrix_t *restrict l_matrix, matrix_t *restrict b_matrix, double *solution, int ls_b) {    
     int line, col, size;
 
     size = l_matrix->n;
@@ -123,7 +123,7 @@ int inv_retro_subs (matrix_t *l_matrix, matrix_t *b_matrix, double *solution, in
     \param ls_b coluna da Matriz identidade (B do sistema linear)
     \return 0 em caso de sucesso. NAN_INF_ERROR em caso de falha.
 */
-int retro_subs (matrix_t *u_matrix, matrix_t *inv_matrix, matrix_t *solution, int ls_b) {    
+int retro_subs (matrix_t *restrict u_matrix, matrix_t *restrict inv_matrix, matrix_t *restrict solution, int ls_b) {    
     int line, col, size;
 
     size = u_matrix->n;
@@ -146,7 +146,7 @@ int retro_subs (matrix_t *u_matrix, matrix_t *inv_matrix, matrix_t *solution, in
     \param inv_matrix Ponteiro para a Matriz inversa calculada
     \return 0 em caso de sucesso, ALLOC_ERROR em caso de falha de alocação
 */
-void calc_residue (matrix_t *residue_matrix, matrix_t *matrix, matrix_t *inv_matrix) {
+void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix, matrix_t *restrict inv_matrix) {
     int line, col, pivot_col, size;
     double temp = 0;
 
@@ -185,14 +185,12 @@ double calc_norma (matrix_t *residue_matrix, double *residue_time) {
 }
 
 // --------------------------- Funções Externas ---------------------------
-int lu_factorization (matrix_t *u_matrix, matrix_t *l_matrix, pivot_steps_t *pivot_steps, double *lu_time) {
+int lu_factorization (matrix_t *restrict u_matrix, matrix_t *restrict l_matrix, pivot_steps_t *pivot_steps, double *lu_time) {
     int line, i_line, col, pivot, size;
     double m;
 
     size = u_matrix->n;
-    for (line = 0; line < size; line++)
-        for (col = 0; col < size; col++)
-            l_matrix->coef[line][col] = 0.0;
+    memset (l_matrix->coef[0], 0.0, sizeof (double) * size * size);
 
     *lu_time = timestamp ();
 
@@ -224,10 +222,9 @@ int lu_factorization (matrix_t *u_matrix, matrix_t *l_matrix, pivot_steps_t *piv
     return EXIT_SUCCESS;
 }
 
-int calc_inverse_matrix (matrix_t *inv_matrix, matrix_t *l_matrix, matrix_t *u_matrix, pivot_steps_t *steps) {
+int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_matrix, matrix_t *restrict u_matrix, pivot_steps_t *steps) {
     matrix_t *i_matrix, *solution;
     double *temp_sol;
-    int line, col;
     int count, sol_count; 
     int size;
 
@@ -237,11 +234,8 @@ int calc_inverse_matrix (matrix_t *inv_matrix, matrix_t *l_matrix, matrix_t *u_m
         return ALLOC_ERROR;
     if (! (temp_sol = malloc (sizeof (double) * size))) 
         return ALLOC_ERROR;
-    for (line = 0; line < size; line++) {
-        temp_sol[line] = 0.0;
-        for (col = 0; col < size; col++) 
-            solution->coef[line][col] = 0.0;
-    }
+    memset (temp_sol, 0.0, sizeof (double) * size);
+    memset (solution->coef[0], 0.0, sizeof (double) * size * size);
     generate_identity_matrix (i_matrix);
 
     LIKWID_MARKER_START ("retrosubs");
@@ -260,15 +254,17 @@ int calc_inverse_matrix (matrix_t *inv_matrix, matrix_t *l_matrix, matrix_t *u_m
     LIKWID_MARKER_STOP ("retrosubs");
     
     free_matrix (solution);
+    free_matrix (i_matrix);
     free (temp_sol);
     return EXIT_SUCCESS;
 }
 
-int matrix_refinement (matrix_t *inv_matrix, matrix_t *matrix, matrix_t *l_matrix, matrix_t *u_matrix, pivot_steps_t *steps, double *norma_vet, int iterations, double *iter_time, double *residue_time) {
+int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix, matrix_t *restrict l_matrix, matrix_t *restrict u_matrix, pivot_steps_t *steps, 
+                       double *restrict norma_vet, int iterations, double *restrict iter_time, double *restrict residue_time) {
     matrix_t *residue_matrix, *solution;
     double act_iter_time, act_residue_time;
     double *temp_sol;
-    int size, line, col, count, ls_count, sol_count;
+    int size, count, ls_count, sol_count;
 
     *iter_time = 0;
     *residue_time = 0;
@@ -280,11 +276,8 @@ int matrix_refinement (matrix_t *inv_matrix, matrix_t *matrix, matrix_t *l_matri
         return ALLOC_ERROR;
     if (! (temp_sol = malloc (sizeof (double) * size))) 
         return ALLOC_ERROR;
-    for (line = 0; line < size; line++) {
-        temp_sol[line] = 0.0;
-        for (col = 0; col < size; col++) 
-            solution->coef[line][col] = 0.0;
-    }
+    memset (temp_sol, 0.0, sizeof (double) * size);
+    memset (solution->coef[0], 0.0, sizeof (double) * size * size);
 
     // passos do refinamento
     for (count = 0; count < iterations; count++) {

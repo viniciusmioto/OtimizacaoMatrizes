@@ -35,7 +35,7 @@ void free_matrix (matrix_t *matrix) {
     }
 }
 
-void copy_matrix (matrix_t *font, matrix_t *target) {
+void copy_matrix (matrix_t *restrict font, matrix_t *restrict target) {
     int line, col;
     for (line = 0; line < font->n; line++) {
         for (col = 0; col < font->n; col++)
@@ -53,12 +53,10 @@ void random_matrix (matrix_t *matrix, double coef_max) {
 }
 
 void generate_identity_matrix (matrix_t *matrix) {
-    int line, col;
-    for (line = 0; line < matrix->n; line++)
-        for (col = 0; col < matrix->n; col++) {
-            if (line == col) matrix->coef[line][col] = 1.0;
-            else matrix->coef[line][col] = 0.0;
-        }
+    int count;
+    memset (matrix->coef[0], 0.0, matrix->n * matrix->n * sizeof (double));
+    for (count = 0; count < matrix->n; count++)
+        matrix->coef[count][count] = 1.0;
 }
 
 matrix_t *read_from_file (parser_t *parser) {

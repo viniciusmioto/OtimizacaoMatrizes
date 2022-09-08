@@ -260,6 +260,7 @@ int calc_inverse_matrix (matrix_t *inv_matrix, matrix_t *l_matrix, matrix_t *u_m
     LIKWID_MARKER_STOP ("retrosubs");
     
     free_matrix (solution);
+    free_matrix (i_matrix);
     free (temp_sol);
     return EXIT_SUCCESS;
 }
