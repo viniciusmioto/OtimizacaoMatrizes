@@ -54,7 +54,7 @@ int main (int argc, char *argv[]) {
 
     copy_matrix (input_matrix, u_matrix);
 
-    if (! (pivot_steps = alloc_steps ())) error = ALLOC_ERROR;
+    if (! (pivot_steps = alloc_steps (input_matrix->n))) error = ALLOC_ERROR;
     if (error != 0) {
         emit_error (error, parser, norma_vet, input_matrix, l_matrix, u_matrix, inv_matrix, pivot_steps);
         return EXIT_FAILURE;

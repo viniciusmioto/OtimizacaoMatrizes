@@ -2,13 +2,15 @@
 
 matrix_t* alloc_matrix (unsigned int n) {
     int i, internal_n;
+    double log_2;
     matrix_t *matrix = malloc (sizeof (matrix_t));
 
     if ( matrix ) {
         matrix->n = n;
         internal_n = n;
 
-        if ((n % 2) == 0) internal_n++;
+        log_2 = log10 (n) / log10 (2);
+        if (ceil (log_2) == floor (log_2)) internal_n++;
 
         matrix->coef = (double **) malloc(internal_n * sizeof(double *));
 

@@ -21,62 +21,6 @@ int find_max (matrix_t *matrix, int line) {
 }
 
 /*!
-    \brief Função que realiza a troca da linha com a linha pivo
-    \param matrix Ponteiro para a Matriz de execução
-    \param line Linha atual
-    \param pivot Posição do Pivo atual
-*/
-void swap_line (matrix_t *matrix, int line, int pivot) {
-    double m_aux;
-    int count;
-
-    for (count = 0; count < matrix->n; count++) {
-        m_aux = matrix->coef[line][count];
-        matrix->coef[line][count] = matrix->coef[pivot][count];
-        matrix->coef[pivot][count] = m_aux;
-    }
-}
-
-/*!
-    \brief função que adiciona o passo de pivotamento na estrutura
-    \param pivot_steps Ponteiro para a estrutura de passos
-    \param line  linha que vai ser trocada
-    \param pivot pivo da troca
-    \returns 0 em caso de sucesso. ALLOC_ERROR em caso de falha
-*/
-int add_pivot_step (pivot_steps_t *pivot_steps, int line, int pivot) {
-    steps_t *step;
-
-    if (! (step = malloc (sizeof (steps_t))))
-        return ALLOC_ERROR;
-
-    step->line = line;
-    step->pivot = pivot;
-
-    if (pivot_steps->qtd == 0) {
-        if (! (pivot_steps->list = malloc (sizeof (steps_t))))
-            return ALLOC_ERROR;
-    } else {
-        if (! (pivot_steps->list = realloc (pivot_steps->list, sizeof (steps_t) * (pivot_steps->qtd + 1))))
-            return ALLOC_ERROR;
-    }
-    pivot_steps->list[pivot_steps->qtd] = step;
-    pivot_steps->qtd++;
-    return EXIT_SUCCESS;
-}
-
-/*!
-    \brief Função que aplica as etapas de pivotamento na Matriz indicada
-    \param matrix Ponteiro para Matriz que será pivoteada
-    \param steps Ponteiro para passos que serão aplicados
-*/
-void apply_pivot_steps (matrix_t *matrix, pivot_steps_t *steps) {
-    int count;
-    for (count = 0; count < steps->qtd; count++) 
-        swap_line (matrix, steps->list[count]->line, steps->list[count]->pivot);
-}
-
-/*!
     \brief função que calcula o determiante e retorna o seu valor
     \param matrix Matriz que vai ser calculada o determinante
     \returns valor do determinante
