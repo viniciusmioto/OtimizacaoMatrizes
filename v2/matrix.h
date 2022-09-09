@@ -2,6 +2,7 @@
 #define __MATRIX_H__
 
 #include <math.h>
+#include <float.h>
 #include <string.h>
 
 #include "constants.h"

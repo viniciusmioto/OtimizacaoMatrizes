@@ -10,9 +10,10 @@ matrix_t* alloc_matrix (unsigned int n) {
         internal_n = n;
 
         log_2 = log10 (n) / log10 (2);
-        if (ceil (log_2) == floor (log_2)) internal_n++;
+        if (fabs (ceil (log_2) - floor (log_2)) < DBL_EPSILON)
+            internal_n = internal_n++;
 
-        matrix->coef = (double **) malloc(internal_n * sizeof(double *));
+        matrix->coef = (double **) malloc (n * sizeof(double *));
 
         if (! (matrix->coef)) {
             free_matrix (matrix);
@@ -20,7 +21,7 @@ matrix_t* alloc_matrix (unsigned int n) {
         }
 
         // Matriz como vetor de N ponteiros para um único vetor com N*N elementos
-        matrix->coef[0] = (double *) malloc(internal_n * internal_n * sizeof(double));
+        matrix->coef[0] = (double *) malloc (n * internal_n * sizeof (double));
         if (! (matrix->coef[0])) {
             free_matrix (matrix);
             return NULL;
