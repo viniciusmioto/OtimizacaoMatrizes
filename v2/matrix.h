@@ -32,7 +32,7 @@ void free_matrix (matrix_t *matrix);
     \param font* Ponteiro para uma Matriz fonte, que terá seus valores copiados
     \param target* Ponteiro para uma Matriz destino
 */
-void copy_matrix (matrix_t *font, matrix_t *target);
+void copy_matrix (matrix_t *restrict font, matrix_t *restrict target);
 
 /*!
     \brief Inicializa um Matriz com valores aleatórios

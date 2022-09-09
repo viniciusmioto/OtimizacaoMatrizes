@@ -11,7 +11,7 @@ matrix_t* alloc_matrix (unsigned int n) {
 
         log_2 = log10 (n) / log10 (2);
         if (fabs (ceil (log_2) - floor (log_2)) < DBL_EPSILON)
-            internal_n = internal_n++;
+            internal_n++;
 
         matrix->coef = (double **) malloc (n * sizeof(double *));
 
@@ -44,6 +44,7 @@ void free_matrix (matrix_t *matrix) {
 
 void copy_matrix (matrix_t *restrict font, matrix_t *restrict target) {
     int line, col;
+
     for (line = 0; line < font->n; line++) {
         for (col = 0; col < font->n; col++)
             target->coef[line][col] = font->coef[line][col];

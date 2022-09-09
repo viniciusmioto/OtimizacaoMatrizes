@@ -22,7 +22,7 @@
     \param lu_time tempo levado para executar a Fatoração LU (Retorno)
     \returns 0 em caso de sucesso. NAN_INF_ERROR ou INVERTIBLE_ERROR em caso de falha
 */
-int lu_factorization (matrix_t *u_matrix, matrix_t *l_matrix, pivot_steps_t *pivot_steps, double *lu_time);
+int lu_factorization (matrix_t *restrict u_matrix, matrix_t *restrict l_matrix, pivot_steps_t *pivot_steps, double *lu_time);
 
 
 /*!
@@ -33,7 +33,7 @@ int lu_factorization (matrix_t *u_matrix, matrix_t *l_matrix, pivot_steps_t *piv
     \param pivot_steps Ponteiro para a estrutura de passos de pivotamento
     \returns 0 em caso de sucesso. NAN_INF_ERROR ou ALLOC_ERROR em caso de falha
 */
-int calc_inverse_matrix (matrix_t *inv_matrix, matrix_t *l_matrix, matrix_t *u_matrix, pivot_steps_t *steps);
+int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_matrix, matrix_t *restrict u_matrix, pivot_steps_t *steps);
 
 /*!
     \brief Refinamento
@@ -48,6 +48,6 @@ int calc_inverse_matrix (matrix_t *inv_matrix, matrix_t *l_matrix, matrix_t *u_m
     \param norma_vet vetor de armazenamento das normas calculadas
     \returns 0 em caso de sucesso. NAN_INF_ERROR ou ALLOC_ERROR em caso de falha
 */
-int matrix_refinement (matrix_t *inv_matrix, matrix_t *matrix, matrix_t *l_matrix, matrix_t *u_matrix, pivot_steps_t *steps, double *norma_vet, int iterations, double *iter_time, double *residue_time);
+int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix, matrix_t *restrict l_matrix, matrix_t *restrict u_matrix, pivot_steps_t *steps, double *restrict norma_vet, int iterations, double *restrict iter_time, double *restrict residue_time);
 
 #endif

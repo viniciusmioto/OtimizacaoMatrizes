@@ -92,17 +92,22 @@ int retro_subs (matrix_t *restrict u_matrix, matrix_t *restrict inv_matrix, matr
 */
 void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix, matrix_t *restrict inv_matrix) {
     int line, col, pivot_col, size;
-    double temp = 0;
-
     size = matrix->n;
     generate_identity_matrix (residue_matrix);
 
     for (pivot_col = 0; pivot_col < size ; pivot_col++) {
-        for (line = 0; line < size; line++) {
-            for (col = 0; col < size; col++) 
-                temp += matrix->coef[line][col] * inv_matrix->coef[col][pivot_col];
-            residue_matrix->coef[line][pivot_col] -= temp;
-            temp = 0;
+        for (line = 0; line < size - (size % 4); line += 4) {
+            for (col = 0; col < size; col++) {
+                residue_matrix->coef[pivot_col][line] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line];
+                residue_matrix->coef[pivot_col][line + 1] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 1];
+                residue_matrix->coef[pivot_col][line + 2] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 2];
+                residue_matrix->coef[pivot_col][line + 3] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 3];
+            }
+        }
+        for (line = size - (size % 4); line < size; line++) {
+            for (col = 0; col < size; col++) {
+                residue_matrix->coef[pivot_col][line] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line];
+            }
         }
     }
 }

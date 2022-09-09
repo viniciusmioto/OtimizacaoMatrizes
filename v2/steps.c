@@ -32,6 +32,7 @@ void swap_line (matrix_t *matrix, int line, int pivot) {
     double m_aux;
     int count;
 
+    // ------------------------ Possivel Blocking -------------------------
     for (count = 0; count < matrix->n; count++) {
         m_aux = matrix->coef[line][count];
         matrix->coef[line][count] = matrix->coef[pivot][count];
