@@ -109,8 +109,8 @@ int inv_retro_subs (matrix_t *l_matrix, matrix_t *b_matrix, double *solution, in
         for (col = line - 1; col >= 0; col--) 
             solution[line] -= l_matrix->coef[line][col] * solution[col];
         solution[line] /= l_matrix->coef[line][line];
-        if (isnan (solution[line]) || isinf (solution[line]))
-            return NAN_INF_ERROR;
+        // if (isnan (solution[line]) || isinf (solution[line]))
+        //     return NAN_INF_ERROR;
     }
     return EXIT_SUCCESS;
 }
@@ -133,8 +133,8 @@ int retro_subs (matrix_t *u_matrix, matrix_t *inv_matrix, matrix_t *solution, in
         for (col = line + 1; col < size; col++) 
             inv_matrix->coef[line][ls_b] -= u_matrix->coef[line][col] * inv_matrix->coef[col][ls_b];
         inv_matrix->coef[line][ls_b] /= u_matrix->coef[line][line];
-        if (isnan (inv_matrix->coef[line][ls_b]) || isinf (inv_matrix->coef[line][ls_b]))
-            return NAN_INF_ERROR;
+        // if (isnan (inv_matrix->coef[line][ls_b]) || isinf (inv_matrix->coef[line][ls_b]))
+        //     return NAN_INF_ERROR;
     }
     return EXIT_SUCCESS;
 }
@@ -207,8 +207,8 @@ int lu_factorization (matrix_t *u_matrix, matrix_t *l_matrix, pivot_steps_t *piv
         l_matrix->coef[line][line] = 1.0;
         for (i_line = line + 1; i_line < size; i_line++) {
             m = u_matrix->coef[i_line][line] / u_matrix->coef[line][line];
-            if (isnan (m) || isinf (m)) 
-                return NAN_INF_ERROR;
+            // if (isnan (m) || isinf (m)) 
+            //     return NAN_INF_ERROR;
             
             u_matrix->coef[i_line][line] = 0.0;
             l_matrix->coef[i_line][line] = m;
@@ -218,8 +218,8 @@ int lu_factorization (matrix_t *u_matrix, matrix_t *l_matrix, pivot_steps_t *piv
     }
     *lu_time = timestamp () - *lu_time;
 
-    if (fabs (calc_determinant (u_matrix) - 0) < DBL_EPSILON)
-        return INVERTIBLE_ERROR;
+    // if (fabs (calc_determinant (u_matrix) - 0) < DBL_EPSILON)
+    //     return INVERTIBLE_ERROR;
 
     return EXIT_SUCCESS;
 }
@@ -247,15 +247,17 @@ int calc_inverse_matrix (matrix_t *inv_matrix, matrix_t *l_matrix, matrix_t *u_m
     LIKWID_MARKER_START ("retrosubs");
     apply_pivot_steps (i_matrix, steps);
     for (count = 0; count < size; count++) {
-        if (inv_retro_subs (l_matrix, i_matrix, temp_sol, count) == NAN_INF_ERROR)
-            return NAN_INF_ERROR;
+        // if (inv_retro_subs (l_matrix, i_matrix, temp_sol, count) == NAN_INF_ERROR)
+        //     return NAN_INF_ERROR;
+        inv_retro_subs (l_matrix, i_matrix, temp_sol, count);
 
         // adição da solução temporaria da execução do refinamento
         for (sol_count = 0; sol_count < size; sol_count++)
             solution->coef[sol_count][count] += temp_sol[sol_count];
 
-        if (retro_subs (u_matrix, inv_matrix, solution, count) == NAN_INF_ERROR)
-            return NAN_INF_ERROR;
+        // if (retro_subs (u_matrix, inv_matrix, solution, count) == NAN_INF_ERROR)
+        //     return NAN_INF_ERROR;
+        retro_subs (u_matrix, inv_matrix, solution, count);
     }
     LIKWID_MARKER_STOP ("retrosubs");
     
@@ -297,15 +299,17 @@ int matrix_refinement (matrix_t *inv_matrix, matrix_t *matrix, matrix_t *l_matri
 
         act_iter_time = timestamp ();
         for (ls_count = 0; ls_count < size; ls_count++) {
-            if (inv_retro_subs (l_matrix, residue_matrix, temp_sol, ls_count) == NAN_INF_ERROR)
-                return NAN_INF_ERROR;
+            // if (inv_retro_subs (l_matrix, residue_matrix, temp_sol, ls_count) == NAN_INF_ERROR)
+            //     return NAN_INF_ERROR;
+            inv_retro_subs (l_matrix, residue_matrix, temp_sol, ls_count);
 
             // adição da solução temporaria da execução do refinamento
             for (sol_count = 0; sol_count < size; sol_count++)
                 solution->coef[sol_count][ls_count] += temp_sol[sol_count];
 
-            if (retro_subs (u_matrix, inv_matrix, solution, ls_count) == NAN_INF_ERROR)
-                return NAN_INF_ERROR;
+            // if (retro_subs (u_matrix, inv_matrix, solution, ls_count) == NAN_INF_ERROR)
+            //     return NAN_INF_ERROR;
+            retro_subs (u_matrix, inv_matrix, solution, ls_count);
         }
         act_iter_time = timestamp () - act_iter_time;
 

@@ -65,22 +65,22 @@ int main (int argc, char *argv[]) {
     error = lu_factorization (u_matrix, l_matrix, pivot_steps, &lu_time);
     LIKWID_MARKER_STOP ("lu-factorization");
     
-    if (error != 0) {
-        emit_error (error, parser, norma_vet, input_matrix, l_matrix, u_matrix, inv_matrix, pivot_steps);
-        return EXIT_FAILURE;
-    }
+    // if (error != 0) {
+    //     emit_error (error, parser, norma_vet, input_matrix, l_matrix, u_matrix, inv_matrix, pivot_steps);
+    //     return EXIT_FAILURE;
+    // }
 
     error = calc_inverse_matrix (inv_matrix, l_matrix, u_matrix, pivot_steps);
-    if (error != 0) {
-        emit_error (error, parser, norma_vet, input_matrix, l_matrix, u_matrix, inv_matrix, pivot_steps);
-        return EXIT_FAILURE;
-    }
+    // if (error != 0) {
+    //     emit_error (error, parser, norma_vet, input_matrix, l_matrix, u_matrix, inv_matrix, pivot_steps);
+    //     return EXIT_FAILURE;
+    // }
 
     error = matrix_refinement (inv_matrix, input_matrix, l_matrix, u_matrix, pivot_steps, norma_vet, parser->iterations, &iter_time, &residue_time);
-    if (error != 0) {
-        emit_error (error, parser, norma_vet, input_matrix, l_matrix, u_matrix, inv_matrix, pivot_steps);
-        return EXIT_FAILURE;
-    }
+    // if (error != 0) {
+    //     emit_error (error, parser, norma_vet, input_matrix, l_matrix, u_matrix, inv_matrix, pivot_steps);
+    //     return EXIT_FAILURE;
+    // }
 
     // print_result (inv_matrix, norma_vet, lu_time, iter_time, residue_time, parser);
 
