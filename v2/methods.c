@@ -53,8 +53,8 @@ int inv_retro_subs (matrix_t *restrict l_matrix, matrix_t *restrict b_matrix, do
         for (col = line - 1; col >= 0; col--) 
             solution[line] -= l_matrix->coef[line][col] * solution[col];
         solution[line] /= l_matrix->coef[line][line];
-        if (isnan (solution[line]) || isinf (solution[line]))
-            return NAN_INF_ERROR;
+        // if (isnan (solution[line]) || isinf (solution[line]))
+        //     return NAN_INF_ERROR;
     }
     return EXIT_SUCCESS;
 }
@@ -77,8 +77,8 @@ int retro_subs (matrix_t *restrict u_matrix, matrix_t *restrict inv_matrix, matr
         for (col = line + 1; col < size; col++) 
             inv_matrix->coef[line][ls_b] -= u_matrix->coef[line][col] * inv_matrix->coef[col][ls_b];
         inv_matrix->coef[line][ls_b] /= u_matrix->coef[line][line];
-        if (isnan (inv_matrix->coef[line][ls_b]) || isinf (inv_matrix->coef[line][ls_b]))
-            return NAN_INF_ERROR;
+        // if (isnan (inv_matrix->coef[line][ls_b]) || isinf (inv_matrix->coef[line][ls_b]))
+        //     return NAN_INF_ERROR;
     }
     return EXIT_SUCCESS;
 }
@@ -95,21 +95,105 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
     size = matrix->n;
     generate_identity_matrix (residue_matrix);
 
-    for (pivot_col = 0; pivot_col < size ; pivot_col++) {
-        for (line = 0; line < size - (size % 4); line += 4) {
-            for (col = 0; col < size; col++) {
-                residue_matrix->coef[pivot_col][line] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line];
-                residue_matrix->coef[pivot_col][line + 1] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 1];
-                residue_matrix->coef[pivot_col][line + 2] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 2];
-                residue_matrix->coef[pivot_col][line + 3] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 3];
+    // for (pivot_col = 0; pivot_col < size ; pivot_col++) {
+    //     for (line = 0; line < size - (size % 4); line += 4) {
+    //         for (col = 0; col < size; col++) {
+    //             residue_matrix->coef[pivot_col][line] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line];
+    //             residue_matrix->coef[pivot_col][line + 1] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 1];
+    //             residue_matrix->coef[pivot_col][line + 2] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 2];
+    //             residue_matrix->coef[pivot_col][line + 3] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 3];
+    //         }
+    //     }
+    //     for (line = size - (size % 4); line < size; line++) {
+    //         for (col = 0; col < size; col++) {
+    //             residue_matrix->coef[pivot_col][line] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line];
+    //         }
+    //     }
+    // }
+
+
+    int istart = 0, iend = 0, jstart = 0, jend = 0, kstart = 0, kend = 0;
+
+    for (int ii = 0; ii < size / 8; ii++) {
+        istart = ii * 8;
+        iend = istart + 8;
+        for (int jj = 0; jj < size / 8; jj++) {
+            jstart = jj * 8;
+            jend = jstart + 8;
+            for (int kk = 0; kk < size / 8; kk++) {
+                kstart = kk * 8;
+                kend = kstart + 8;
+                // linhas da matriz de residuo
+                for (int i = istart; i < iend; i++) {
+                    for (int j = jstart; j < jend; j += 4) {
+                        for (int k = kstart; k < kend; k++) {
+                            residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                            residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
+                            residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
+                            residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
+                        }
+                    }
+                    // residuo do unroll e jam
+                    // for (int j = jend; j < iend; j++) {
+                    //     for (int k = 0; k < iend; k++) {
+                    //         residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                    //     }
+                    // }
+                }
+            }
+            for (int i = istart; i < iend; i++) {
+                for (int j = jstart; j < jend; j += 4) {
+                    for (int k = kend; k < size; k++) {
+                        residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                        residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
+                        residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
+                        residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
+                    }
+                }
             }
         }
-        for (line = size - (size % 4); line < size; line++) {
-            for (col = 0; col < size; col++) {
-                residue_matrix->coef[pivot_col][line] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line];
+        for (int i = istart; i < iend; i++) {
+            for (int j = jend; j < size; j++) {
+                for (int k = kstart; k < kend; k++) {
+                    residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                }
             }
         }
     }
+    for (int i = iend; i < size; i++) {
+         for (int j = jend; j < size; j++) {
+            for (int k = kend; k < size; k++) {
+                residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+            }
+         }
+    }
+
+    // for (int ii = 0; ii < N / b; ++ii)
+    // {
+    //     istart = ii * b;
+    //     iend = istart + b;
+    //     for (int jj = 0; jj < N / b; ++jj)
+    //     {
+    //         jstart = jj * b;
+    //         jend = jstart + b;
+    //         for (int kk = 0; kk < N / b; ++kk)
+    //         {
+    //             kstart = kk * b;
+    //             kend = kstart + b;
+    //             for (int i = istart; i < iend; ++i)
+    //                 for (int j = jstart; j < jend; j += m)
+    //                 {
+    //                     C[i][j] = C[i][j + 1] = ... = C[i][j + m - 1] = 0.0;
+    //                     for (int k = kstart; k < kend; ++k)
+    //                     {
+    //                         C[i][j] += A[i][k] * B[k][j];
+    //                         C[i][j + 1] += A[i][k] * B[k][j + 1];
+    //                         ... C[i][j + m - 1] += A[i][k] * B[k][j + m - 1];
+    //                     }
+    //                 }
+    //         }
+    //     }
+    // }
 }
 
 /*!
@@ -154,8 +238,8 @@ int lu_factorization (matrix_t *restrict u_matrix, matrix_t *restrict l_matrix, 
         l_matrix->coef[line][line] = 1.0;
         for (i_line = line + 1; i_line < size; i_line++) {
             m = u_matrix->coef[i_line][line] / u_matrix->coef[line][line];
-            if (isnan (m) || isinf (m)) 
-                return NAN_INF_ERROR;
+            // if (isnan (m) || isinf (m)) 
+            //     return NAN_INF_ERROR;
             
             u_matrix->coef[i_line][line] = 0.0;
             l_matrix->coef[i_line][line] = m;
@@ -190,15 +274,17 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
     LIKWID_MARKER_START ("retrosubs");
     apply_pivot_steps (i_matrix, steps);
     for (count = 0; count < size; count++) {
-        if (inv_retro_subs (l_matrix, i_matrix, temp_sol, count) == NAN_INF_ERROR)
-            return NAN_INF_ERROR;
+        // if (inv_retro_subs (l_matrix, i_matrix, temp_sol, count) == NAN_INF_ERROR)
+        //     return NAN_INF_ERROR;
+        inv_retro_subs (l_matrix, i_matrix, temp_sol, count);
 
         // adição da solução temporaria da execução do refinamento
         for (sol_count = 0; sol_count < size; sol_count++)
             solution->coef[sol_count][count] += temp_sol[sol_count];
 
-        if (retro_subs (u_matrix, inv_matrix, solution, count) == NAN_INF_ERROR)
-            return NAN_INF_ERROR;
+        // if (retro_subs (u_matrix, inv_matrix, solution, count) == NAN_INF_ERROR)
+        //     return NAN_INF_ERROR;
+        retro_subs (u_matrix, inv_matrix, solution, count);
     }
     LIKWID_MARKER_STOP ("retrosubs");
     
@@ -238,15 +324,17 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
 
         act_iter_time = timestamp ();
         for (ls_count = 0; ls_count < size; ls_count++) {
-            if (inv_retro_subs (l_matrix, residue_matrix, temp_sol, ls_count) == NAN_INF_ERROR)
-                return NAN_INF_ERROR;
+            // if (inv_retro_subs (l_matrix, residue_matrix, temp_sol, ls_count) == NAN_INF_ERROR)
+            //     return NAN_INF_ERROR;
+            inv_retro_subs (l_matrix, residue_matrix, temp_sol, ls_count);
 
             // adição da solução temporaria da execução do refinamento
             for (sol_count = 0; sol_count < size; sol_count++)
                 solution->coef[sol_count][ls_count] += temp_sol[sol_count];
 
-            if (retro_subs (u_matrix, inv_matrix, solution, ls_count) == NAN_INF_ERROR)
-                return NAN_INF_ERROR;
+            // if (retro_subs (u_matrix, inv_matrix, solution, ls_count) == NAN_INF_ERROR)
+            //     return NAN_INF_ERROR;
+            retro_subs (u_matrix, inv_matrix, solution, ls_count);
         }
         act_iter_time = timestamp () - act_iter_time;
 

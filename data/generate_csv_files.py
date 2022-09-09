@@ -41,7 +41,7 @@ for group in groups:
                 
                 try:
                     file_data = data.split(',')[1]
-                    if line == groups[group][1]:
+                    if line == groups[group][-1]:
                         op2_list.append(float(file_data))
                     else:
                         op1_list.append(float(file_data))

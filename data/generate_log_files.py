@@ -1,11 +1,12 @@
 import os
 
-versions = ['v1','v2']
-matrix_sizes = [32, 33, 64, 65, 128, 129, 256, 257, 512, 1000, 2000, 4000, 6000, 10000]
+versions = ['v2']
+# matrix_sizes = [32, 33, 64, 65, 128, 129, 256, 257, 512, 1000, 2000, 4000, 6000, 10000]
+matrix_sizes = [32, 33, 64, 65, 128, 129, 256, 257, 512]
 groups = ['MEM', 'CACHE', 'FLOPS_DP']
 
 # make
-os.system('../v1/ make')
+# os.system('../v1/ make')
 # os.system('../v2/ make')
 
 for v in versions:
