@@ -2,15 +2,21 @@
 
 pivot_steps_t *alloc_steps (int n) {
     pivot_steps_t *pivot_steps;
+    double log_2;
+    int internal_n;
 
     if ((pivot_steps = malloc (sizeof (pivot_steps_t)))) {
-        pivot_steps->lines = calloc (n, sizeof (int));
-        pivot_steps->pivots = calloc (n, sizeof (int));
+        internal_n = n;
+        log_2 = log10 (n) / log10 (2);
+        if (ceil (log_2) == floor (log_2)) internal_n++;
+
+        pivot_steps->lines = calloc (internal_n, sizeof (int));
+        pivot_steps->pivots = calloc (internal_n, sizeof (int));
         if (! pivot_steps->lines || !pivot_steps->pivots)
             return NULL;
 
-        memset (pivot_steps->lines, 0, n * sizeof (int));
-        memset (pivot_steps->pivots, 0, n * sizeof (int));
+        memset (pivot_steps->lines, 0, internal_n * sizeof (int));
+        memset (pivot_steps->pivots, 0, internal_n * sizeof (int));
         pivot_steps->qtd = 0;
         return pivot_steps;
     } else return NULL;
