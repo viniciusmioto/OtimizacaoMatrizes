@@ -36,54 +36,6 @@ double calc_determinant (matrix_t *matrix) {
 }
 
 /*!
-    \brief Função que calcula o valor do sistema linear de uma matriz triangular inferior
-    \param l_matrix Ponteiro para a Matriz L
-    \param b_matrix Ponteiro para a Matriz de termos independentes
-    \param solution vetor com a solução da retrosubstituição
-    \param ls_b coluna da Matriz identidade (B do sistema linear)
-    \return 0 em caso de sucesso. NAN_INF_ERROR em caso de falha.
-*/
-int inv_retro_subs (matrix_t *restrict l_matrix, matrix_t *restrict b_matrix, double *solution, int ls_b) {    
-    int line, col, size;
-
-    size = l_matrix->n;
-
-    for (line = 0; line < size; line++) {
-        solution[line] = b_matrix->coef[line][ls_b];
-        for (col = line - 1; col >= 0; col--) 
-            solution[line] -= l_matrix->coef[line][col] * solution[col];
-        solution[line] /= l_matrix->coef[line][line];
-        // if (isnan (solution[line]) || isinf (solution[line]))
-        //     return NAN_INF_ERROR;
-    }
-    return EXIT_SUCCESS;
-}
-
-/*!
-    \brief Função que calcula o valor do sistema linear de uma matriz triangular superior
-    \param u_matrix Ponteiro para a Matriz U
-    \param inv_matrix Ponteiro para Matriz Inversa
-    \param solution matrix com a solução da retrosubstituição anterior
-    \param ls_b coluna da Matriz identidade (B do sistema linear)
-    \return 0 em caso de sucesso. NAN_INF_ERROR em caso de falha.
-*/
-int retro_subs (matrix_t *restrict u_matrix, matrix_t *restrict inv_matrix, matrix_t *restrict solution, int ls_b) {    
-    int line, col, size;
-
-    size = u_matrix->n;
-
-    for (line = size - 1; line >= 0; line--) {
-        inv_matrix->coef[line][ls_b] = solution->coef[line][ls_b];
-        for (col = line + 1; col < size; col++) 
-            inv_matrix->coef[line][ls_b] -= u_matrix->coef[line][col] * inv_matrix->coef[col][ls_b];
-        inv_matrix->coef[line][ls_b] /= u_matrix->coef[line][line];
-        // if (isnan (inv_matrix->coef[line][ls_b]) || isinf (inv_matrix->coef[line][ls_b]))
-        //     return NAN_INF_ERROR;
-    }
-    return EXIT_SUCCESS;
-}
-
-/*!
     \brief Função que calcula a matrix de residuos do resultado
     \param residue_matrix Ponteiro para a Matriz de Residuos (Retorno)
     \param matrix Ponteiro para Matriz enviada pelo usuário
@@ -209,7 +161,7 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
     matrix_t *i_matrix, *solution;
     double *temp_sol;
     int count, sol_count; 
-    int size;
+    int size, line, col;
 
     size = inv_matrix->n;
 
@@ -224,17 +176,29 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
     LIKWID_MARKER_START ("retrosubs");
     apply_pivot_steps (i_matrix, steps);
     for (count = 0; count < size; count++) {
-        // if (inv_retro_subs (l_matrix, i_matrix, temp_sol, count) == NAN_INF_ERROR)
-        //     return NAN_INF_ERROR;
-        inv_retro_subs (l_matrix, i_matrix, temp_sol, count);
+        // Retrosubstituição inversa
+        for (line = 0; line < size; line++) {
+            temp_sol[line] = i_matrix->coef[line][count];
+            for (col = line - 1; col >= 0; col--)
+                temp_sol[line] -= l_matrix->coef[line][col] * temp_sol[col];
+            temp_sol[line] /= l_matrix->coef[line][line];
+            // if (isnan (solution[line]) || isinf (solution[line]))
+            //     return NAN_INF_ERROR;
+        }
 
         // adição da solução temporaria da execução do refinamento
         for (sol_count = 0; sol_count < size; sol_count++)
-            solution->coef[sol_count][count] += temp_sol[sol_count];
+            solution->coef[sol_count][count] += temp_sol[sol_count];;
 
-        // if (retro_subs (u_matrix, inv_matrix, solution, count) == NAN_INF_ERROR)
-        //     return NAN_INF_ERROR;
-        retro_subs (u_matrix, inv_matrix, solution, count);
+        // Retrosubstituição
+        for (line = size - 1; line >= 0; line--) {
+            inv_matrix->coef[line][count] = solution->coef[line][count];
+            for (col = line + 1; col < size; col++) 
+                inv_matrix->coef[line][count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][count];
+            inv_matrix->coef[line][count] /= u_matrix->coef[line][line];
+            // if (isnan (inv_matrix->coef[line][count]) || isinf (inv_matrix->coef[line][count]))
+            //     return NAN_INF_ERROR;
+        }
     }
     LIKWID_MARKER_STOP ("retrosubs");
     
@@ -250,6 +214,7 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
     double act_iter_time, act_residue_time;
     double *temp_sol;
     int size, count, ls_count, sol_count;
+    int line, col;
 
     *iter_time = 0;
     *residue_time = 0;
@@ -274,17 +239,29 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
 
         act_iter_time = timestamp ();
         for (ls_count = 0; ls_count < size; ls_count++) {
-            // if (inv_retro_subs (l_matrix, residue_matrix, temp_sol, ls_count) == NAN_INF_ERROR)
-            //     return NAN_INF_ERROR;
-            inv_retro_subs (l_matrix, residue_matrix, temp_sol, ls_count);
+            // Retrosubstituição inversa
+            for (line = 0; line < size; line++) {
+                temp_sol[line] = residue_matrix->coef[line][ls_count];
+                for (col = line - 1; col >= 0; col--)
+                    temp_sol[line] -= l_matrix->coef[line][col] * temp_sol[col];
+                temp_sol[line] /= l_matrix->coef[line][line];
+                // if (isnan (solution[line]) || isinf (solution[line]))
+                //     return NAN_INF_ERROR;
+            }
 
             // adição da solução temporaria da execução do refinamento
             for (sol_count = 0; sol_count < size; sol_count++)
                 solution->coef[sol_count][ls_count] += temp_sol[sol_count];
 
-            // if (retro_subs (u_matrix, inv_matrix, solution, ls_count) == NAN_INF_ERROR)
-            //     return NAN_INF_ERROR;
-            retro_subs (u_matrix, inv_matrix, solution, ls_count);
+            // Retrosubstituição
+            for (line = size - 1; line >= 0; line--) {
+                inv_matrix->coef[line][ls_count] = solution->coef[line][ls_count];
+                for (col = line + 1; col < size; col++) 
+                    inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][ls_count];
+                inv_matrix->coef[line][ls_count] /= u_matrix->coef[line][line];
+                // if (isnan (inv_matrix->coef[line][ls_count]) || isinf (inv_matrix->coef[line][ls_count]))
+                //     return NAN_INF_ERROR;
+            }
         }
         act_iter_time = timestamp () - act_iter_time;
 

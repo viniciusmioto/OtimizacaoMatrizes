@@ -30,10 +30,28 @@ void apply_pivot_steps (matrix_t *matrix, pivot_steps_t *steps) {
 
 void swap_line (matrix_t *matrix, int line, int pivot) {
     double m_aux;
-    int count;
+    int count, size;
+    size = matrix->n;
 
-    // ------------------------ Possivel Blocking -------------------------
-    for (count = 0; count < matrix->n; count++) {
+    for (count = 0; count < size - (size % UNROLL_S_SIZE); count += UNROLL_S_SIZE) {
+        m_aux = matrix->coef[line][count];
+        matrix->coef[line][count] = matrix->coef[pivot][count];
+        matrix->coef[pivot][count] = m_aux;
+
+        m_aux = matrix->coef[line][count + 1];
+        matrix->coef[line][count + 1] = matrix->coef[pivot][count + 1];
+        matrix->coef[pivot][count + 1] = m_aux;
+
+        m_aux = matrix->coef[line][count + 2];
+        matrix->coef[line][count + 2] = matrix->coef[pivot][count + 2];
+        matrix->coef[pivot][count + 2] = m_aux;
+
+        m_aux = matrix->coef[line][count + 3];
+        matrix->coef[line][count + 3] = matrix->coef[pivot][count + 3];
+        matrix->coef[pivot][count + 3] = m_aux;
+    }
+
+    for (count = size - (size % UNROLL_S_SIZE); count < size; count++) {
         m_aux = matrix->coef[line][count];
         matrix->coef[line][count] = matrix->coef[pivot][count];
         matrix->coef[pivot][count] = m_aux;
