@@ -11,4 +11,9 @@
 // Valor máximo usado para gerar valores aleatórios da matriz
 #define COEF_MAX 32.0 
 
+// Otimização
+#define BLOCK_SIZE 8
+#define UNROLL_SIZE 4
+#define UNROLL_I_SIZE 8
+
 #endif

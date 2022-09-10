@@ -61,9 +61,21 @@ void random_matrix (matrix_t *matrix, double coef_max) {
 }
 
 void generate_identity_matrix (matrix_t *matrix) {
+    int size = matrix->n;
     int count;
-    memset (matrix->coef[0], 0.0, matrix->n * matrix->n * sizeof (double));
-    for (count = 0; count < matrix->n; count++)
+
+    memset (matrix->coef[0], 0.0, size * size * sizeof (double));
+    for (count = 0; count < size - (size % UNROLL_I_SIZE); count += UNROLL_I_SIZE) {
+        matrix->coef[count][count] = 1.0;
+        matrix->coef[count + 1][count + 1] = 1.0;
+        matrix->coef[count + 2][count + 2] = 1.0;
+        matrix->coef[count + 3][count + 3] = 1.0;
+        matrix->coef[count + 4][count + 4] = 1.0;
+        matrix->coef[count + 5][count + 5] = 1.0;
+        matrix->coef[count + 6][count + 6] = 1.0;
+        matrix->coef[count + 7][count + 7] = 1.0;
+    }
+    for (count = size - (size % UNROLL_I_SIZE); count < size; count++)
         matrix->coef[count][count] = 1.0;
 }
 

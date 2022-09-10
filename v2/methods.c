@@ -91,59 +91,36 @@ int retro_subs (matrix_t *restrict u_matrix, matrix_t *restrict inv_matrix, matr
     \return 0 em caso de sucesso, ALLOC_ERROR em caso de falha de alocação
 */
 void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix, matrix_t *restrict inv_matrix) {
-    int line, col, pivot_col, size;
+    int istart = 0, iend = 0, jstart = 0, jend = 0, kstart = 0, kend = 0;
+    int ii, jj, kk, i, j, k;
+    int size, loops;
     size = matrix->n;
     generate_identity_matrix (residue_matrix);
 
-    // for (pivot_col = 0; pivot_col < size ; pivot_col++) {
-    //     for (line = 0; line < size - (size % 4); line += 4) {
-    //         for (col = 0; col < size; col++) {
-    //             residue_matrix->coef[pivot_col][line] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line];
-    //             residue_matrix->coef[pivot_col][line + 1] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 1];
-    //             residue_matrix->coef[pivot_col][line + 2] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 2];
-    //             residue_matrix->coef[pivot_col][line + 3] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line + 3];
-    //         }
-    //     }
-    //     for (line = size - (size % 4); line < size; line++) {
-    //         for (col = 0; col < size; col++) {
-    //             residue_matrix->coef[pivot_col][line] -= matrix->coef[pivot_col][col] * inv_matrix->coef[col][line];
-    //         }
-    //     }
-    // }
-
-
-    int istart = 0, iend = 0, jstart = 0, jend = 0, kstart = 0, kend = 0;
-
-    for (int ii = 0; ii < size / 8; ii++) {
-        istart = ii * 8;
-        iend = istart + 8;
-        for (int jj = 0; jj < size / 8; jj++) {
-            jstart = jj * 8;
-            jend = jstart + 8;
-            for (int kk = 0; kk < size / 8; kk++) {
-                kstart = kk * 8;
-                kend = kstart + 8;
-                // linhas da matriz de residuo
-                for (int i = istart; i < iend; i++) {
-                    for (int j = jstart; j < jend; j += 4) {
-                        for (int k = kstart; k < kend; k++) {
+    loops = size / BLOCK_SIZE;
+    for (ii = 0; ii < loops; ii++) {
+        istart = ii * BLOCK_SIZE;
+        iend = istart + BLOCK_SIZE;
+        for (jj = 0; jj < loops; jj++) {
+            jstart = jj * BLOCK_SIZE;
+            jend = jstart + BLOCK_SIZE;
+            for (kk = 0; kk < loops; kk++) {
+                kstart = kk * BLOCK_SIZE;
+                kend = kstart + BLOCK_SIZE;
+                for (i = istart; i < iend; i++) {
+                    for (j = jstart; j < jend; j += UNROLL_SIZE) {
+                        for (k = kstart; k < kend; k++) {
                             residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
                             residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
                             residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
                             residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
                         }
                     }
-                    // residuo do unroll e jam
-                    // for (int j = jend; j < iend; j++) {
-                    //     for (int k = 0; k < iend; k++) {
-                    //         residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
-                    //     }
-                    // }
                 }
             }
-            for (int i = istart; i < iend; i++) {
-                for (int j = jstart; j < jend; j += 4) {
-                    for (int k = kend; k < size; k++) {
+            for (i = istart; i < iend; i++) {
+                for (j = jstart; j < jend; j += UNROLL_SIZE) {
+                    for (k = kend; k < size; k++) {
                         residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
                         residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
                         residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
@@ -152,48 +129,21 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
                 }
             }
         }
-        for (int i = istart; i < iend; i++) {
-            for (int j = jend; j < size; j++) {
-                for (int k = kstart; k < kend; k++) {
+        for (i = iend; i < size; i++) {
+            for (j = jend; j < size; j++) {
+                for (k = kstart; k < kend; k++) {
                     residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
                 }
             }
         }
     }
-    for (int i = iend; i < size; i++) {
-         for (int j = jend; j < size; j++) {
-            for (int k = kend; k < size; k++) {
+    for (i = iend; i < size; i++) {
+         for (j = jend; j < size; j++) {
+            for (k = kend; k < size; k++) {
                 residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
             }
          }
     }
-
-    // for (int ii = 0; ii < N / b; ++ii)
-    // {
-    //     istart = ii * b;
-    //     iend = istart + b;
-    //     for (int jj = 0; jj < N / b; ++jj)
-    //     {
-    //         jstart = jj * b;
-    //         jend = jstart + b;
-    //         for (int kk = 0; kk < N / b; ++kk)
-    //         {
-    //             kstart = kk * b;
-    //             kend = kstart + b;
-    //             for (int i = istart; i < iend; ++i)
-    //                 for (int j = jstart; j < jend; j += m)
-    //                 {
-    //                     C[i][j] = C[i][j + 1] = ... = C[i][j + m - 1] = 0.0;
-    //                     for (int k = kstart; k < kend; ++k)
-    //                     {
-    //                         C[i][j] += A[i][k] * B[k][j];
-    //                         C[i][j + 1] += A[i][k] * B[k][j + 1];
-    //                         ... C[i][j + m - 1] += A[i][k] * B[k][j + m - 1];
-    //                     }
-    //                 }
-    //         }
-    //     }
-    // }
 }
 
 /*!
