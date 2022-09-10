@@ -188,7 +188,7 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
 
         // adição da solução temporaria da execução do refinamento
         for (sol_count = 0; sol_count < size; sol_count++)
-            solution->coef[sol_count][count] += temp_sol[sol_count];;
+            solution->coef[sol_count][count] += temp_sol[sol_count];
 
         // Retrosubstituição
         for (line = size - 1; line >= 0; line--) {

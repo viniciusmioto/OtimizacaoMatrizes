@@ -70,10 +70,6 @@ void generate_identity_matrix (matrix_t *matrix) {
         matrix->coef[count + 1][count + 1] = 1.0;
         matrix->coef[count + 2][count + 2] = 1.0;
         matrix->coef[count + 3][count + 3] = 1.0;
-        matrix->coef[count + 4][count + 4] = 1.0;
-        matrix->coef[count + 5][count + 5] = 1.0;
-        matrix->coef[count + 6][count + 6] = 1.0;
-        matrix->coef[count + 7][count + 7] = 1.0;
     }
     for (count = size - (size % UNROLL_I_SIZE); count < size; count++)
         matrix->coef[count][count] = 1.0;

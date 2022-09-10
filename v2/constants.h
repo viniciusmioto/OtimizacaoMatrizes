@@ -14,7 +14,7 @@
 // Otimização
 #define BLOCK_SIZE 8
 #define UNROLL_SIZE 4
-#define UNROLL_I_SIZE 8
+#define UNROLL_I_SIZE 4
 #define UNROLL_S_SIZE 4
 
 #endif

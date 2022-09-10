@@ -82,7 +82,7 @@ int main (int argc, char *argv[]) {
     //     return EXIT_FAILURE;
     // }
 
-    // print_result (inv_matrix, norma_vet, lu_time, iter_time, residue_time, parser);
+    print_result (inv_matrix, norma_vet, lu_time, iter_time, residue_time, parser);
 
     LIKWID_MARKER_CLOSE;
 
