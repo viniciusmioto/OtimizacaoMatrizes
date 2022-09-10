@@ -57,7 +57,7 @@ for group in groups:
                         if (len(time_list) == 5):
                             df_time = pd.concat([pd.DataFrame([time_list], columns=df_time.columns), df_time], ignore_index=True)
                         
-                if group == 'MEM':
+                elif group == 'MEM':
                     # last line
                     if line == groups[group][-1]:
                         mem_list.append(sum(op1_list))
@@ -66,7 +66,7 @@ for group in groups:
                         if (len(mem_list) == 5):
                             df_mem = pd.concat([pd.DataFrame([mem_list], columns=df_mem.columns), df_mem], ignore_index=True)
                               
-                if group == 'CACHE':
+                elif group == 'CACHE':
                     # last line
                     if line == groups[group][-1]:
                         cache_list.append(sum(op1_list))
@@ -75,7 +75,7 @@ for group in groups:
                         if (len(cache_list) == 5):
                             df_cache = pd.concat([pd.DataFrame([cache_list], columns=df_cache.columns), df_cache], ignore_index=True)
                                  
-                if group == 'FLOPS_DP':
+                elif group == 'FLOPS_DP':
                     # last line
                     if line == groups[group][-1]:
                         flops_list.append(sum(op1_list))

@@ -21,7 +21,7 @@ matrix_t* alloc_matrix (unsigned int n) {
         }
 
         // Matriz como vetor de N ponteiros para um único vetor com N*N elementos
-        matrix->coef[0] = (double *) malloc (n * internal_n * sizeof (double));
+        matrix->coef[0] = (double *) aligned_alloc (ALING_SIZE, n * n * sizeof(double));
         if (! (matrix->coef[0])) {
             free_matrix (matrix);
             return NULL;
@@ -65,13 +65,13 @@ void generate_identity_matrix (matrix_t *matrix) {
     int count;
 
     memset (matrix->coef[0], 0.0, size * size * sizeof (double));
-    for (count = 0; count < size - (size % UNROLL_I_SIZE); count += UNROLL_I_SIZE) {
+    for (count = 0; count < size - (size % UNROLL_SIZE); count += UNROLL_SIZE) {
         matrix->coef[count][count] = 1.0;
         matrix->coef[count + 1][count + 1] = 1.0;
         matrix->coef[count + 2][count + 2] = 1.0;
         matrix->coef[count + 3][count + 3] = 1.0;
     }
-    for (count = size - (size % UNROLL_I_SIZE); count < size; count++)
+    for (count = size - (size % UNROLL_SIZE); count < size; count++)
         matrix->coef[count][count] = 1.0;
 }
 

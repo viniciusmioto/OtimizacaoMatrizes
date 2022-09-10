@@ -8,6 +8,8 @@
 #include "constants.h"
 #include "parser.h"
 
+#define ALING_SIZE 64
+
 // Estrutura de dados para a Matriz
 typedef struct {
   double **coef; // coeficientes

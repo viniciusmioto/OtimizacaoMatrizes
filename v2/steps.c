@@ -33,7 +33,7 @@ void swap_line (matrix_t *matrix, int line, int pivot) {
     int count, size;
     size = matrix->n;
 
-    for (count = 0; count < size - (size % UNROLL_S_SIZE); count += UNROLL_S_SIZE) {
+    for (count = 0; count < size - (size % UNROLL_SIZE); count += UNROLL_SIZE) {
         m_aux = matrix->coef[line][count];
         matrix->coef[line][count] = matrix->coef[pivot][count];
         matrix->coef[pivot][count] = m_aux;
@@ -51,7 +51,7 @@ void swap_line (matrix_t *matrix, int line, int pivot) {
         matrix->coef[pivot][count + 3] = m_aux;
     }
 
-    for (count = size - (size % UNROLL_S_SIZE); count < size; count++) {
+    for (count = size - (size % UNROLL_SIZE); count < size; count++) {
         m_aux = matrix->coef[line][count];
         matrix->coef[line][count] = matrix->coef[pivot][count];
         matrix->coef[pivot][count] = m_aux;

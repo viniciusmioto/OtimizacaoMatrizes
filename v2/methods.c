@@ -9,13 +9,16 @@
 */
 int find_max (matrix_t *matrix, int line) {
     int count, max_line;
-    double iterator;
-    iterator = ABS (matrix->coef[line][line]);
+    double iterator, value;
+    iterator = fabs (matrix->coef[line][line]);
     max_line = line;
 
     for (count = line + 1; count < matrix->n; count++) {
-        max_line = iterator >= ABS (matrix->coef[count][line]) ? max_line : count;
-        iterator = iterator >= ABS (matrix->coef[count][line]) ? iterator : ABS (matrix->coef[count][line]);
+        value = fabs (matrix->coef[count][line]);
+        if (value > iterator) {
+            max_line = count;
+            iterator = value;
+        }
     }
     return max_line;
 }
@@ -26,10 +29,13 @@ int find_max (matrix_t *matrix, int line) {
     \returns valor do determinante
 */
 double calc_determinant (matrix_t *matrix) {
-    int count;
+    int count, size;
     double determinant = 1.0;
+    size = matrix->n;
 
-    for (count = 0; count < matrix->n; count++)
+    for (count = 0; count < size - (size % UNROLL_SIZE); count += UNROLL_SIZE) 
+        determinant = determinant * matrix->coef[count][count] * matrix->coef[count + 1][count + 1] * matrix->coef[count + 2][count + 2] * matrix->coef[count + 3][count + 3];
+    for (count = size - (size % UNROLL_SIZE); count < size; count++) 
         determinant = determinant * matrix->coef[count][count];
 
     return determinant;
@@ -111,7 +117,16 @@ double calc_norma (matrix_t *residue_matrix, double *residue_time) {
     size = residue_matrix->n;
 
     *residue_time = timestamp ();
-    for (line = 0; line < size; line++)
+
+    for (line = 0; line < size - (size % UNROLL_SIZE); line += UNROLL_SIZE) {
+        for (col = 0; col < size; col++) {
+            norma += residue_matrix->coef[line][col] * residue_matrix->coef[line][col];
+            norma += residue_matrix->coef[line + 1][col] * residue_matrix->coef[line + 1][col];
+            norma += residue_matrix->coef[line + 2][col] * residue_matrix->coef[line + 2][col];
+            norma += residue_matrix->coef[line + 3][col] * residue_matrix->coef[line + 3][col];
+        }
+    }
+    for (line = size - (size % UNROLL_SIZE); line < size; line++) 
         for (col = 0; col < size; col++) 
             norma += residue_matrix->coef[line][col] * residue_matrix->coef[line][col];
 
@@ -187,7 +202,13 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
         }
 
         // adição da solução temporaria da execução do refinamento
-        for (sol_count = 0; sol_count < size; sol_count++)
+        for (sol_count = 0; sol_count < size - (size % UNROLL_SIZE); sol_count += UNROLL_SIZE) {
+                solution->coef[sol_count][count] += temp_sol[sol_count];
+                solution->coef[sol_count + 1][count] += temp_sol[sol_count + 1];
+                solution->coef[sol_count + 2][count] += temp_sol[sol_count + 2];
+                solution->coef[sol_count + 3][count] += temp_sol[sol_count + 3];
+            }
+        for (sol_count = size - (size % UNROLL_SIZE); sol_count < size; sol_count++)
             solution->coef[sol_count][count] += temp_sol[sol_count];
 
         // Retrosubstituição
@@ -250,7 +271,13 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
             }
 
             // adição da solução temporaria da execução do refinamento
-            for (sol_count = 0; sol_count < size; sol_count++)
+            for (sol_count = 0; sol_count < size - (size % UNROLL_SIZE); sol_count += UNROLL_SIZE) {
+                solution->coef[sol_count][ls_count] += temp_sol[sol_count];
+                solution->coef[sol_count + 1][ls_count] += temp_sol[sol_count + 1];
+                solution->coef[sol_count + 2][ls_count] += temp_sol[sol_count + 2];
+                solution->coef[sol_count + 3][ls_count] += temp_sol[sol_count + 3];
+            }
+            for (sol_count = size - (size % UNROLL_SIZE); sol_count < size; sol_count++)
                 solution->coef[sol_count][ls_count] += temp_sol[sol_count];
 
             // Retrosubstituição
