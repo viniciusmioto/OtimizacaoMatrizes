@@ -235,8 +235,6 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
             //     return NAN_INF_ERROR;
         }
     }
-    return EXIT_SUCCESS;
-    }
     LIKWID_MARKER_STOP ("retrosubs");
     
     free_matrix (solution);
