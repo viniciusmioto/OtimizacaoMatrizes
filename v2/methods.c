@@ -30,12 +30,14 @@ int find_max (matrix_t *matrix, int line) {
 */
 double calc_determinant (matrix_t *matrix) {
     int count, size;
+    int unroll_limit;
     double determinant = 1.0;
     size = matrix->n;
+    unroll_limit = size - (size % UNROLL_SIZE);
 
-    for (count = 0; count < size - (size % UNROLL_SIZE); count += UNROLL_SIZE) 
+    for (count = 0; count < unroll_limit; count += UNROLL_SIZE) 
         determinant = determinant * matrix->coef[count][count] * matrix->coef[count + 1][count + 1] * matrix->coef[count + 2][count + 2] * matrix->coef[count + 3][count + 3];
-    for (count = size - (size % UNROLL_SIZE); count < size; count++) 
+    for (count = unroll_limit; count < size; count++) 
         determinant = determinant * matrix->coef[count][count];
 
     return determinant;
@@ -112,13 +114,15 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
 */
 double calc_norma (matrix_t *residue_matrix, double *residue_time) {
     int line, col, size;
+    int unroll_limit;
     double norma = 0.0;
 
     size = residue_matrix->n;
+    unroll_limit = size - (size % UNROLL_SIZE);
 
     *residue_time = timestamp ();
 
-    for (line = 0; line < size - (size % UNROLL_SIZE); line += UNROLL_SIZE) {
+    for (line = 0; line < unroll_limit; line += UNROLL_SIZE) {
         for (col = 0; col < size; col++) {
             norma += residue_matrix->coef[line][col] * residue_matrix->coef[line][col];
             norma += residue_matrix->coef[line + 1][col] * residue_matrix->coef[line + 1][col];
@@ -126,7 +130,7 @@ double calc_norma (matrix_t *residue_matrix, double *residue_time) {
             norma += residue_matrix->coef[line + 3][col] * residue_matrix->coef[line + 3][col];
         }
     }
-    for (line = size - (size % UNROLL_SIZE); line < size; line++) 
+    for (line = unroll_limit; line < size; line++) 
         for (col = 0; col < size; col++) 
             norma += residue_matrix->coef[line][col] * residue_matrix->coef[line][col];
 
@@ -177,8 +181,10 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
     double *temp_sol;
     int count, sol_count; 
     int size, line, col;
+    int unroll_limit;
 
     size = inv_matrix->n;
+    unroll_limit = size - (size % UNROLL_SIZE);
 
     if (! (i_matrix = alloc_matrix (size)) || ! (solution = alloc_matrix (size)))
         return ALLOC_ERROR;
@@ -202,13 +208,13 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
         }
 
         // adição da solução temporaria da execução do refinamento
-        for (sol_count = 0; sol_count < size - (size % UNROLL_SIZE); sol_count += UNROLL_SIZE) {
+        for (sol_count = 0; sol_count < unroll_limit; sol_count += UNROLL_SIZE) {
                 solution->coef[sol_count][count] += temp_sol[sol_count];
                 solution->coef[sol_count + 1][count] += temp_sol[sol_count + 1];
                 solution->coef[sol_count + 2][count] += temp_sol[sol_count + 2];
                 solution->coef[sol_count + 3][count] += temp_sol[sol_count + 3];
             }
-        for (sol_count = size - (size % UNROLL_SIZE); sol_count < size; sol_count++)
+        for (sol_count = unroll_limit; sol_count < size; sol_count++)
             solution->coef[sol_count][count] += temp_sol[sol_count];
 
         // Retrosubstituição
@@ -236,11 +242,13 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
     double *temp_sol;
     int size, count, ls_count, sol_count;
     int line, col;
+    int unroll_limit;
 
     *iter_time = 0;
     *residue_time = 0;
 
     size = matrix->n;
+    unroll_limit = size - (size % UNROLL_SIZE);
 
     // Alocação e inicialização dos vetores/Matrizes internas
     if (! (solution = alloc_matrix (size)) || ! (residue_matrix = alloc_matrix (size)))
@@ -271,13 +279,13 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
             }
 
             // adição da solução temporaria da execução do refinamento
-            for (sol_count = 0; sol_count < size - (size % UNROLL_SIZE); sol_count += UNROLL_SIZE) {
+            for (sol_count = 0; sol_count < unroll_limit; sol_count += UNROLL_SIZE) {
                 solution->coef[sol_count][ls_count] += temp_sol[sol_count];
                 solution->coef[sol_count + 1][ls_count] += temp_sol[sol_count + 1];
                 solution->coef[sol_count + 2][ls_count] += temp_sol[sol_count + 2];
                 solution->coef[sol_count + 3][ls_count] += temp_sol[sol_count + 3];
             }
-            for (sol_count = size - (size % UNROLL_SIZE); sol_count < size; sol_count++)
+            for (sol_count = unroll_limit; sol_count < size; sol_count++)
                 solution->coef[sol_count][ls_count] += temp_sol[sol_count];
 
             // Retrosubstituição
