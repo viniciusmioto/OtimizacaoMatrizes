@@ -53,11 +53,12 @@ double calc_determinant (matrix_t *matrix) {
 void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix, matrix_t *restrict inv_matrix) {
     int istart = 0, iend = 0, jstart = 0, jend = 0, kstart = 0, kend = 0;
     int ii, jj, kk, i, j, k;
-    int size, loops;
+    int size, loops, unroll_limit;
     size = matrix->n;
     generate_identity_matrix (residue_matrix);
 
     loops = size / BLOCK_SIZE;
+    unroll_limit = size - (size % UNROLL_SIZE);
     for (ii = 0; ii < loops; ii++) {
         istart = ii * BLOCK_SIZE;
         iend = istart + BLOCK_SIZE;
@@ -90,19 +91,31 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
             }
         }
         for (i = iend; i < size; i++) {
-            for (j = jend; j < size; j++) {
+            for (j = jend; j < unroll_limit; j += 4) {
                 for (k = kstart; k < kend; k++) {
                     residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                    residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
+                    residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
+                    residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
                 }
             }
+            for (j = unroll_limit; j < size; j++)
+                for (k = kstart; k < kend; k++) 
+                    residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
         }
     }
     for (i = iend; i < size; i++) {
-         for (j = jend; j < size; j++) {
+         for (j = jend; j < unroll_limit; j += 4) {
             for (k = kend; k < size; k++) {
                 residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
+                residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
+                residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
             }
-         }
+        }
+        for (j = unroll_limit; j < size; j++)
+            for (k = kend; k < size; k++)
+                residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
     }
 }
 
