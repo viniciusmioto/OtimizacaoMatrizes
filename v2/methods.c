@@ -73,15 +73,10 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
                 for (i = istart; i < iend; i++) {
                     for (j = jstart; j < jend; j += UNROLL_SIZE) {
                         for (k = kstart; k < kend; k++) {
-                            avx_mul = _mm256_mul_pd (_mm256_loadu_pd (&matrix->coef[i][k]), _mm256_loadu_pd (&inv_matrix->coef[k][j]));
-                            sum_aux_1 = _mm256_extractf128_pd (avx_mul, 0);
-                            sum_aux_2 = _mm256_extractf128_pd (avx_mul, 1);
-                            final_sum = _mm_add_pd (sum_aux_1, sum_aux_2);
-                            residue_matrix->coef[i][j] -= _mm_cvtsd_f64 (final_sum);
-                            // residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
-                            // residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
-                            // residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
-                            // residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
+                            residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                            residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
+                            residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
+                            residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
                         }
                     }
                 }
@@ -89,15 +84,10 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
             for (i = istart; i < iend; i++) {
                 for (j = jstart; j < jend; j += UNROLL_SIZE) {
                     for (k = kend; k < size; k++) {
-                        avx_mul = _mm256_mul_pd (_mm256_loadu_pd (&matrix->coef[i][k]), _mm256_loadu_pd (&inv_matrix->coef[k][j]));
-                        sum_aux_1 = _mm256_extractf128_pd (avx_mul, 0);
-                        sum_aux_2 = _mm256_extractf128_pd (avx_mul, 1);
-                        final_sum = _mm_add_pd (sum_aux_1, sum_aux_2);
-                        residue_matrix->coef[i][j] -= _mm_cvtsd_f64 (final_sum);
-                        // residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
-                        // residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
-                        // residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
-                        // residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
+                        residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                        residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
+                        residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
+                        residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
                     }
                 }
             }
@@ -105,15 +95,10 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
         for (i = iend; i < size; i++) {
             for (j = jend; j < unroll_limit; j += UNROLL_SIZE) {
                 for (k = kstart; k < kend; k++) {
-                    avx_mul = _mm256_mul_pd (_mm256_loadu_pd (&matrix->coef[i][k]), _mm256_loadu_pd (&inv_matrix->coef[k][j]));
-                    sum_aux_1 = _mm256_extractf128_pd (avx_mul, 0);
-                    sum_aux_2 = _mm256_extractf128_pd (avx_mul, 1);
-                    final_sum = _mm_add_pd (sum_aux_1, sum_aux_2);
-                    residue_matrix->coef[i][j] -= _mm_cvtsd_f64 (final_sum);
-                    // residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
-                    // residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
-                    // residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
-                    // residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
+                    residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                    residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
+                    residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
+                    residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
                 }
             }
             for (j = unroll_limit; j < size; j++)
