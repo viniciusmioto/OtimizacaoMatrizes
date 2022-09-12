@@ -78,6 +78,10 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
                             sum_aux_2 = _mm256_extractf128_pd (avx_mul, 1);
                             final_sum = _mm_add_pd (sum_aux_1, sum_aux_2);
                             residue_matrix->coef[i][j] -= _mm_cvtsd_f64 (final_sum);
+                            // residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                            // residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
+                            // residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
+                            // residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
                         }
                     }
                 }
@@ -90,18 +94,26 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
                         sum_aux_2 = _mm256_extractf128_pd (avx_mul, 1);
                         final_sum = _mm_add_pd (sum_aux_1, sum_aux_2);
                         residue_matrix->coef[i][j] -= _mm_cvtsd_f64 (final_sum);
+                        // residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                        // residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
+                        // residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
+                        // residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
                     }
                 }
             }
         }
         for (i = iend; i < size; i++) {
-            for (j = jend; j < unroll_limit; j += 4) {
+            for (j = jend; j < unroll_limit; j += UNROLL_SIZE) {
                 for (k = kstart; k < kend; k++) {
                     avx_mul = _mm256_mul_pd (_mm256_loadu_pd (&matrix->coef[i][k]), _mm256_loadu_pd (&inv_matrix->coef[k][j]));
                     sum_aux_1 = _mm256_extractf128_pd (avx_mul, 0);
                     sum_aux_2 = _mm256_extractf128_pd (avx_mul, 1);
                     final_sum = _mm_add_pd (sum_aux_1, sum_aux_2);
                     residue_matrix->coef[i][j] -= _mm_cvtsd_f64 (final_sum);
+                    // residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
+                    // residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
+                    // residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
+                    // residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
                 }
             }
             for (j = unroll_limit; j < size; j++)
@@ -230,10 +242,10 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
         for (sol_count = 0; sol_count < unroll_limit; sol_count += UNROLL_SIZE) {
             sol_avx = _mm256_add_pd (_mm256_loadu_pd (&solution->coef[count][sol_count]), _mm256_loadu_pd (&temp_sol[sol_count]));
             aux_avx = (double *)&sol_avx;
-            solution->coef[count][sol_count] = aux_avx[0];
-            solution->coef[count][sol_count + 1] = aux_avx[1];
-            solution->coef[count][sol_count + 2] = aux_avx[2];
-            solution->coef[count][sol_count + 3] = aux_avx[3];
+            solution->coef[count][sol_count] = aux_avx[sol_count];
+            solution->coef[count][sol_count + 1] = aux_avx[sol_count + 1];
+            solution->coef[count][sol_count + 2] = aux_avx[sol_count + 2];
+            solution->coef[count][sol_count + 3] = aux_avx[sol_count + 3];
         }
         for (sol_count = unroll_limit; sol_count < size; sol_count++)
             solution->coef[count][sol_count] += temp_sol[sol_count];
@@ -241,7 +253,7 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
         // Retrosubstituição
         for (line = size - 1; line >= 0; line--) {
             line_size = size - line - 1;
-            retro_limit = size - (line_size % 4);
+            retro_limit = size - (linesize % 4);
             
             inv_matrix->coef[line][count] = solution->coef[count][line];
             for (col = line + 1; col < retro_limit; col += 4) {
@@ -313,10 +325,10 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
             for (sol_count = 0; sol_count < unroll_limit; sol_count += UNROLL_SIZE) {
                 sol_avx = _mm256_add_pd (_mm256_loadu_pd (&solution->coef[ls_count][sol_count]), _mm256_loadu_pd (&temp_sol[sol_count]));
                 aux_avx = (double *)&sol_avx;
-                solution->coef[ls_count][sol_count] = aux_avx[0];
-                solution->coef[ls_count][sol_count + 1] = aux_avx[1];
-                solution->coef[ls_count][sol_count + 2] = aux_avx[2];
-                solution->coef[ls_count][sol_count + 3] = aux_avx[3];
+                solution->coef[ls_count][sol_count] = aux_avx[sol_count];
+                solution->coef[ls_count][sol_count + 1] = aux_avx[sol_count + 1];
+                solution->coef[ls_count][sol_count + 2] = aux_avx[sol_count + 2];
+                solution->coef[ls_count][sol_count + 3] = aux_avx[sol_count + 3];
             }
             for (sol_count = unroll_limit; sol_count < size; sol_count++)
                 solution->coef[ls_count][sol_count] += temp_sol[sol_count];
@@ -324,7 +336,7 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
             // Retrosubstituição
             for (line = size - 1; line >= 0; line--) {
                 line_size = size - line - 1;
-                retro_limit = size - (line_size % 4);
+                retro_limit = size - (linesize % 4);
                 
                 inv_matrix->coef[line][ls_count] = solution->coef[ls_count][line];
                 for (col = line + 1; col < retro_limit; col += 4) {
