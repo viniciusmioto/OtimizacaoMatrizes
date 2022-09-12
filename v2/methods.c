@@ -191,10 +191,11 @@ int lu_factorization (matrix_t *restrict u_matrix, matrix_t *restrict l_matrix, 
 
 int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_matrix, matrix_t *restrict u_matrix, pivot_steps_t *steps) {
     matrix_t *i_matrix, *solution;
-    double *temp_sol;
+    double *temp_sol, *aux_avx;
     int count, sol_count; 
     int size, line, col;
     int unroll_limit, line_size;
+    __m256d sol_avx;
 
     size = inv_matrix->n;
     unroll_limit = size - (size % UNROLL_SIZE);
@@ -222,26 +223,28 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
 
         // adição da solução temporaria da execução do refinamento
         for (sol_count = 0; sol_count < unroll_limit; sol_count += UNROLL_SIZE) {
-                solution->coef[sol_count][count] += temp_sol[sol_count];
-                solution->coef[sol_count + 1][count] += temp_sol[sol_count + 1];
-                solution->coef[sol_count + 2][count] += temp_sol[sol_count + 2];
-                solution->coef[sol_count + 3][count] += temp_sol[sol_count + 3];
-            }
+            sol_avx = _mm256_add_pd (_mm256_loadu_pd (&solution->coef[count][sol_count]), _mm256_loadu_pd (&temp_sol[sol_count]));
+            aux_avx = (double *)&sol_avx;
+            solution->coef[count][sol_count] = aux_avx[sol_count];
+            solution->coef[count][sol_count + 1] = aux_avx[sol_count + 1];
+            solution->coef[count][sol_count + 2] = aux_avx[sol_count + 2];
+            solution->coef[count][sol_count + 3] = aux_avx[sol_count + 3];
+        }
         for (sol_count = unroll_limit; sol_count < size; sol_count++)
-            solution->coef[sol_count][count] += temp_sol[sol_count];
+            solution->coef[count][sol_count] += temp_sol[sol_count];
 
         // Retrosubstituição
         for (line = size - 1; line >= 0; line--) {
             line_size = size - line - 1;
             
-            inv_matrix->coef[line][count] = solution->coef[line][count];
-            for (col = line + 1; col < size - (line_size % 4); col += 4) {
+            inv_matrix->coef[line][count] = solution->coef[count][line];
+            for (col = line + 1; col < unroll_limit; col += 4) {
                 inv_matrix->coef[line][count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][count];
                 inv_matrix->coef[line][count] -= u_matrix->coef[line][col + 1] * inv_matrix->coef[col + 1][count];
                 inv_matrix->coef[line][count] -= u_matrix->coef[line][col + 2] * inv_matrix->coef[col + 2][count];
                 inv_matrix->coef[line][count] -= u_matrix->coef[line][col + 3] * inv_matrix->coef[col + 3][count];
             }
-            for (col = size - (line_size % 4); col < size; col++) 
+            for (col = unroll_limit; col < size; col++) 
                 inv_matrix->coef[line][count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][count];
             inv_matrix->coef[line][count] /= u_matrix->coef[line][line];
             // if (isnan (inv_matrix->coef[line][count]) || isinf (inv_matrix->coef[line][count]))
@@ -260,10 +263,11 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
                        double *restrict norma_vet, int iterations, double *restrict iter_time, double *restrict residue_time) {
     matrix_t *residue_matrix, *solution;
     double act_iter_time, act_residue_time;
-    double *temp_sol;
+    double *temp_sol, *aux_avx;
     int size, count, ls_count, sol_count;
     int line, col;
     int unroll_limit, line_size;
+     __m256d sol_avx;
 
     *iter_time = 0;
     *residue_time = 0;
@@ -301,26 +305,28 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
 
             // adição da solução temporaria da execução do refinamento
             for (sol_count = 0; sol_count < unroll_limit; sol_count += UNROLL_SIZE) {
-                solution->coef[sol_count][ls_count] += temp_sol[sol_count];
-                solution->coef[sol_count + 1][ls_count] += temp_sol[sol_count + 1];
-                solution->coef[sol_count + 2][ls_count] += temp_sol[sol_count + 2];
-                solution->coef[sol_count + 3][ls_count] += temp_sol[sol_count + 3];
+                sol_avx = _mm256_add_pd (_mm256_loadu_pd (&solution->coef[ls_count][sol_count]), _mm256_loadu_pd (&temp_sol[sol_count]));
+                aux_avx = (double *)&sol_avx;
+                solution->coef[ls_count][sol_count] = aux_avx[sol_count];
+                solution->coef[ls_count][sol_count + 1] = aux_avx[sol_count + 1];
+                solution->coef[ls_count][sol_count + 2] = aux_avx[sol_count + 2];
+                solution->coef[ls_count][sol_count + 3] = aux_avx[sol_count + 3];
             }
             for (sol_count = unroll_limit; sol_count < size; sol_count++)
-                solution->coef[sol_count][ls_count] += temp_sol[sol_count];
+                solution->coef[ls_count][sol_count] += temp_sol[sol_count];
 
             // Retrosubstituição
             for (line = size - 1; line >= 0; line--) {
                 line_size = size - line - 1;
                 
-                inv_matrix->coef[line][ls_count] = solution->coef[line][ls_count];
-                for (col = line + 1; col < size - (line_size % 4); col += 4) {
+                inv_matrix->coef[line][ls_count] = solution->coef[ls_count][line];
+                for (col = line + 1; col < unroll_limit; col += 4) {
                     inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][ls_count];
                     inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col + 1] * inv_matrix->coef[col + 1][ls_count];
                     inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col + 2] * inv_matrix->coef[col + 2][ls_count];
                     inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col + 3] * inv_matrix->coef[col + 3][ls_count];
                 }
-                for (col = size - (line_size % 4); col < size; col++) 
+                for (col = unroll_limit; col < size; col++) 
                     inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][ls_count];
                 inv_matrix->coef[line][ls_count] /= u_matrix->coef[line][line];
                 // if (isnan (inv_matrix->coef[line][ls_count]) || isinf (inv_matrix->coef[line][ls_count]))
