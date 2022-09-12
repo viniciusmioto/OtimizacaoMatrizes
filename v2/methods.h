@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <float.h>
 #include <string.h>
+#include <immintrin.h>
 #include <likwid.h>
 
 #include "matrix.h"
