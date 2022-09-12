@@ -225,10 +225,10 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
         for (sol_count = 0; sol_count < unroll_limit; sol_count += UNROLL_SIZE) {
             sol_avx = _mm256_add_pd (_mm256_loadu_pd (&solution->coef[count][sol_count]), _mm256_loadu_pd (&temp_sol[sol_count]));
             aux_avx = (double *)&sol_avx;
-            solution->coef[count][sol_count] = aux_avx[sol_count];
-            solution->coef[count][sol_count + 1] = aux_avx[sol_count + 1];
-            solution->coef[count][sol_count + 2] = aux_avx[sol_count + 2];
-            solution->coef[count][sol_count + 3] = aux_avx[sol_count + 3];
+            solution->coef[count][sol_count] = aux_avx[0];
+            solution->coef[count][sol_count + 1] = aux_avx[1];
+            solution->coef[count][sol_count + 2] = aux_avx[2];
+            solution->coef[count][sol_count + 3] = aux_avx[3];
         }
         for (sol_count = unroll_limit; sol_count < size; sol_count++)
             solution->coef[count][sol_count] += temp_sol[sol_count];
@@ -236,7 +236,7 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
         // Retrosubstituição
         for (line = size - 1; line >= 0; line--) {
             line_size = size - line - 1;
-            retro_limit = size - (linesize % 4);
+            retro_limit = size - (line_size % 4);
             
             inv_matrix->coef[line][count] = solution->coef[count][line];
             for (col = line + 1; col < retro_limit; col += 4) {
@@ -308,10 +308,10 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
             for (sol_count = 0; sol_count < unroll_limit; sol_count += UNROLL_SIZE) {
                 sol_avx = _mm256_add_pd (_mm256_loadu_pd (&solution->coef[ls_count][sol_count]), _mm256_loadu_pd (&temp_sol[sol_count]));
                 aux_avx = (double *)&sol_avx;
-                solution->coef[ls_count][sol_count] = aux_avx[sol_count];
-                solution->coef[ls_count][sol_count + 1] = aux_avx[sol_count + 1];
-                solution->coef[ls_count][sol_count + 2] = aux_avx[sol_count + 2];
-                solution->coef[ls_count][sol_count + 3] = aux_avx[sol_count + 3];
+                solution->coef[ls_count][sol_count] = aux_avx[0];
+                solution->coef[ls_count][sol_count + 1] = aux_avx[1];
+                solution->coef[ls_count][sol_count + 2] = aux_avx[2];
+                solution->coef[ls_count][sol_count + 3] = aux_avx[3];
             }
             for (sol_count = unroll_limit; sol_count < size; sol_count++)
                 solution->coef[ls_count][sol_count] += temp_sol[sol_count];
@@ -319,7 +319,7 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
             // Retrosubstituição
             for (line = size - 1; line >= 0; line--) {
                 line_size = size - line - 1;
-                retro_limit = size - (linesize % 4);
+                retro_limit = size - (line_size % 4);
                 
                 inv_matrix->coef[line][ls_count] = solution->coef[ls_count][line];
                 for (col = line + 1; col < retro_limit; col += 4) {
