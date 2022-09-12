@@ -54,8 +54,6 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
     int istart = 0, iend = 0, jstart = 0, jend = 0, kstart = 0, kend = 0;
     int ii, jj, kk, i, j, k;
     int size, loops, unroll_limit;
-    __m256d avx_mul;
-    __m128d sum_aux_1, sum_aux_2, final_sum;
     size = matrix->n;
     generate_identity_matrix (residue_matrix);
 
