@@ -194,7 +194,7 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
     double *temp_sol, *aux_avx;
     int count, sol_count; 
     int size, line, col;
-    int unroll_limit, line_size;
+    int unroll_limit, retro_limit, line_size;
     __m256d sol_avx;
 
     size = inv_matrix->n;
@@ -236,15 +236,16 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
         // Retrosubstituição
         for (line = size - 1; line >= 0; line--) {
             line_size = size - line - 1;
+            retro_limit = size - (linesize % 4);
             
             inv_matrix->coef[line][count] = solution->coef[count][line];
-            for (col = line + 1; col < unroll_limit; col += 4) {
+            for (col = line + 1; col < retro_limit; col += 4) {
                 inv_matrix->coef[line][count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][count];
                 inv_matrix->coef[line][count] -= u_matrix->coef[line][col + 1] * inv_matrix->coef[col + 1][count];
                 inv_matrix->coef[line][count] -= u_matrix->coef[line][col + 2] * inv_matrix->coef[col + 2][count];
                 inv_matrix->coef[line][count] -= u_matrix->coef[line][col + 3] * inv_matrix->coef[col + 3][count];
             }
-            for (col = unroll_limit; col < size; col++) 
+            for (col = retro_limit; col < size; col++) 
                 inv_matrix->coef[line][count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][count];
             inv_matrix->coef[line][count] /= u_matrix->coef[line][line];
             // if (isnan (inv_matrix->coef[line][count]) || isinf (inv_matrix->coef[line][count]))
@@ -266,7 +267,7 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
     double *temp_sol, *aux_avx;
     int size, count, ls_count, sol_count;
     int line, col;
-    int unroll_limit, line_size;
+    int unroll_limit, retro_limit, line_size;
      __m256d sol_avx;
 
     *iter_time = 0;
@@ -318,15 +319,16 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
             // Retrosubstituição
             for (line = size - 1; line >= 0; line--) {
                 line_size = size - line - 1;
+                retro_limit = size - (linesize % 4);
                 
                 inv_matrix->coef[line][ls_count] = solution->coef[ls_count][line];
-                for (col = line + 1; col < unroll_limit; col += 4) {
+                for (col = line + 1; col < retro_limit; col += 4) {
                     inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][ls_count];
                     inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col + 1] * inv_matrix->coef[col + 1][ls_count];
                     inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col + 2] * inv_matrix->coef[col + 2][ls_count];
                     inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col + 3] * inv_matrix->coef[col + 3][ls_count];
                 }
-                for (col = unroll_limit; col < size; col++) 
+                for (col = retro_limit; col < size; col++) 
                     inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][ls_count];
                 inv_matrix->coef[line][ls_count] /= u_matrix->coef[line][line];
                 // if (isnan (inv_matrix->coef[line][ls_count]) || isinf (inv_matrix->coef[line][ls_count]))
