@@ -36,12 +36,27 @@ void add_pivot_step (pivot_steps_t *pivot_steps, int line, int pivot);
 void apply_pivot_steps (matrix_t *matrix, pivot_steps_t *steps);
 
 /*!
+    \brief Função que aplica as etapas de pivotamento na Matriz indicada trasposta
+    \param matrix Ponteiro para Matriz que será pivoteada
+    \param steps Ponteiro para passos que serão aplicados
+*/
+void apply_transpost_pivot_steps (matrix_t *matrix, pivot_steps_t *steps);
+
+/*!
     \brief Função que realiza a troca da linha com a linha pivo
     \param matrix Ponteiro para a Matriz de execução
     \param line Linha atual
     \param pivot Posição do Pivo atual
 */
 void swap_line (matrix_t *matrix, int line, int pivot);
+
+/*!
+    \brief Função que realiza a troca da linha com a linha pivo em uma matriz trasposta
+    \param matrix Ponteiro para a Matriz de execução
+    \param line Linha atual
+    \param pivot Posição do Pivo atual
+*/
+void swap_transpost_line (matrix_t *matrix, int line, int pivot);
 
 /*!
     \brief Libera o espaço alocado para o pivot_steps
