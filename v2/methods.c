@@ -35,10 +35,14 @@ double calc_determinant (matrix_t *matrix) {
     size = matrix->n;
     unroll_limit = size - (size % UNROLL_SIZE);
 
-    for (count = 0; count < unroll_limit; count += UNROLL_SIZE) 
-        determinant = determinant * matrix->coef[count][count] * matrix->coef[count + 1][count + 1] * matrix->coef[count + 2][count + 2] * matrix->coef[count + 3][count + 3];
+    for (count = 0; count < unroll_limit; count += UNROLL_SIZE) {
+        determinant *= matrix->coef[count][count];
+        determinant *= matrix->coef[count + 1][count + 1];
+        determinant *= matrix->coef[count + 2][count + 2];
+        determinant *= matrix->coef[count + 3][count + 3];
+    }
     for (count = unroll_limit; count < size; count++) 
-        determinant = determinant * matrix->coef[count][count];
+        determinant *= matrix->coef[count][count];
 
     return determinant;
 }
@@ -54,7 +58,6 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
     int line, col, pivot_col, size;
     int unroll_limit;
     __m256d mul_avx;
-    __m128d sum_aux_1, sum_aux_2, sum_final;
 
     size = matrix->n;
     unroll_limit = size - (size % UNROLL_SIZE);
@@ -64,12 +67,7 @@ void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix,
         for (line = 0; line < size; line++) {
             for (col = 0; col < unroll_limit; col += UNROLL_SIZE) {
                 mul_avx = _mm256_mul_pd (_mm256_loadu_pd (&matrix->coef[line][col]), _mm256_loadu_pd (&inv_matrix->coef[pivot_col][col]));
-                sum_aux_1  = _mm256_castpd256_pd128(mul_avx);
-                sum_aux_2 = _mm256_extractf128_pd(mul_avx, 1);
-                sum_aux_1  = _mm_add_pd(sum_aux_1, sum_aux_2);
-
-                sum_final = _mm_unpackhi_pd(sum_aux_1, sum_aux_1);
-                residue_matrix->coef[pivot_col][line] -= _mm_cvtsd_f64(_mm_add_sd(sum_aux_1, sum_final));
+                residue_matrix->coef[pivot_col][line] -= avx_register_sum (mul_avx);
             }
             for (col = unroll_limit; col < size; col++)
                 residue_matrix->coef[pivot_col][line] -= matrix->coef[line][col] * inv_matrix->coef[pivot_col][col];
@@ -87,6 +85,7 @@ double calc_norma (matrix_t *residue_matrix, double *residue_time) {
     int line, col, size;
     int unroll_limit;
     double norma = 0.0;
+    __m256d mul_avx;
 
     size = residue_matrix->n;
     unroll_limit = size - (size % UNROLL_SIZE);
@@ -95,10 +94,8 @@ double calc_norma (matrix_t *residue_matrix, double *residue_time) {
 
     for (line = 0; line < unroll_limit; line += UNROLL_SIZE) {
         for (col = 0; col < size; col++) {
-            norma += residue_matrix->coef[col][line] * residue_matrix->coef[col][line];
-            norma += residue_matrix->coef[col][line + 1] * residue_matrix->coef[col][line + 1];
-            norma += residue_matrix->coef[col][line + 2] * residue_matrix->coef[col][line + 2];
-            norma += residue_matrix->coef[col][line + 3] * residue_matrix->coef[line][line + 3];
+            mul_avx = _mm256_mul_pd (_mm256_loadu_pd (&residue_matrix->coef[col][line]), _mm256_loadu_pd (&residue_matrix->coef[col][line]));
+            norma += avx_register_sum (mul_avx);
         }
     }
     for (line = unroll_limit; line < size; line++) 
@@ -154,7 +151,6 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
     int size, line, col;
     int unroll_limit, retro_limit, line_size;
     __m256d sol_avx, mul_avx;
-    __m128d sum_aux_1, sum_aux_2, sum_final;
 
     size = inv_matrix->n;
     unroll_limit = size - (size % UNROLL_SIZE);
@@ -200,11 +196,7 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
             inv_matrix->coef[count][line] = solution->coef[count][line];
             for (col = line + 1; col < retro_limit; col += 4) {
                 mul_avx = _mm256_mul_pd (_mm256_loadu_pd (&u_matrix->coef[line][col]), _mm256_loadu_pd (&inv_matrix->coef[count][col]));
-                sum_aux_1  = _mm256_castpd256_pd128(mul_avx);
-                sum_aux_2 = _mm256_extractf128_pd(mul_avx, 1);
-                sum_aux_1  = _mm_add_pd(sum_aux_1, sum_aux_2);
-                sum_final = _mm_unpackhi_pd(sum_aux_1, sum_aux_1);
-                inv_matrix->coef[count][line] -= _mm_cvtsd_f64(_mm_add_sd(sum_aux_1, sum_final));
+                inv_matrix->coef[count][line] -= avx_register_sum (mul_avx);
             }
             for (col = retro_limit; col < size; col++) 
                 inv_matrix->coef[count][line] -= u_matrix->coef[line][col] * inv_matrix->coef[count][col];
@@ -230,7 +222,6 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
     int line, col;
     int unroll_limit, retro_limit, line_size;
     __m256d sol_avx, mul_avx;
-    __m128d sum_aux_1, sum_aux_2, sum_final;
 
     *iter_time = 0;
     *residue_time = 0;
@@ -286,11 +277,7 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
                 inv_matrix->coef[ls_count][line] = solution->coef[ls_count][line];
                 for (col = line + 1; col < retro_limit; col += UNROLL_SIZE) {
                     mul_avx = _mm256_mul_pd (_mm256_loadu_pd (&u_matrix->coef[line][col]), _mm256_loadu_pd (&inv_matrix->coef[ls_count][col]));
-                    sum_aux_1  = _mm256_castpd256_pd128(mul_avx);
-                    sum_aux_2 = _mm256_extractf128_pd(mul_avx, 1);
-                    sum_aux_1  = _mm_add_pd(sum_aux_1, sum_aux_2);
-                    sum_final = _mm_unpackhi_pd(sum_aux_1, sum_aux_1);
-                    inv_matrix->coef[ls_count][line] -= _mm_cvtsd_f64(_mm_add_sd(sum_aux_1, sum_final));
+                    inv_matrix->coef[ls_count][line] -= avx_register_sum (mul_avx);
                 }
                 for (col = retro_limit; col < size; col++) 
                     inv_matrix->coef[ls_count][line] -= u_matrix->coef[line][col] * inv_matrix->coef[ls_count][col];
