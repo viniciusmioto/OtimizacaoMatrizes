@@ -51,71 +51,29 @@ double calc_determinant (matrix_t *matrix) {
     \return 0 em caso de sucesso, ALLOC_ERROR em caso de falha de alocação
 */
 void calc_residue (matrix_t *restrict residue_matrix, matrix_t *restrict matrix, matrix_t *restrict inv_matrix) {
-    int istart = 0, iend = 0, jstart = 0, jend = 0, kstart = 0, kend = 0;
-    int ii, jj, kk, i, j, k;
-    int size, loops, unroll_limit;
+    int line, col, pivot_col, size;
+    int unroll_limit;
+    __m256d mul_avx;
+    __m128d sum_aux_1, sum_aux_2, sum_final;
+
     size = matrix->n;
+    unroll_limit = size - (size % UNROLL_SIZE);
     generate_identity_matrix (residue_matrix);
 
-    loops = size / BLOCK_SIZE;
-    unroll_limit = size - (size % UNROLL_SIZE);
-    for (ii = 0; ii < loops; ii++) {
-        istart = ii * BLOCK_SIZE;
-        iend = istart + BLOCK_SIZE;
-        for (jj = 0; jj < loops; jj++) {
-            jstart = jj * BLOCK_SIZE;
-            jend = jstart + BLOCK_SIZE;
-            for (kk = 0; kk < loops; kk++) {
-                kstart = kk * BLOCK_SIZE;
-                kend = kstart + BLOCK_SIZE;
-                for (i = istart; i < iend; i++) {
-                    for (j = jstart; j < jend; j += UNROLL_SIZE) {
-                        for (k = kstart; k < kend; k++) {
-                            residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
-                            residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
-                            residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
-                            residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
-                        }
-                    }
-                }
+    for (pivot_col = 0; pivot_col < size ; pivot_col++) {
+        for (line = 0; line < size; line++) {
+            for (col = 0; col < unroll_limit; col += UNROLL_SIZE) {
+                mul_avx = _mm256_mul_pd (_mm256_loadu_pd (&matrix->coef[line][col]), _mm256_loadu_pd (&inv_matrix->coef[pivot_col][col]));
+                sum_aux_1  = _mm256_castpd256_pd128(mul_avx);
+                sum_aux_2 = _mm256_extractf128_pd(mul_avx, 1);
+                sum_aux_1  = _mm_add_pd(sum_aux_1, sum_aux_2);
+
+                sum_final = _mm_unpackhi_pd(sum_aux_1, sum_aux_1);
+                residue_matrix->coef[pivot_col][line] -= _mm_cvtsd_f64(_mm_add_sd(sum_aux_1, sum_final));
             }
-            for (i = istart; i < iend; i++) {
-                for (j = jstart; j < jend; j += UNROLL_SIZE) {
-                    for (k = kend; k < size; k++) {
-                        residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
-                        residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
-                        residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
-                        residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
-                    }
-                }
-            }
+            for (col = unroll_limit; col < size; col++)
+                residue_matrix->coef[pivot_col][line] -= matrix->coef[line][col] * inv_matrix->coef[pivot_col][col];
         }
-        for (i = iend; i < size; i++) {
-            for (j = jend; j < unroll_limit; j += UNROLL_SIZE) {
-                for (k = kstart; k < kend; k++) {
-                    residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
-                    residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
-                    residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
-                    residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
-                }
-            }
-            for (j = unroll_limit; j < size; j++)
-                for (k = kstart; k < kend; k++) 
-                    residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
-        }
-    }
-    for (i = iend; i < size; i++) {
-         for (j = jend; j < unroll_limit; j += 4) {
-            for (k = kend; k < size; k++) {
-                residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
-                residue_matrix->coef[i][j + 1] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 1];
-                residue_matrix->coef[i][j + 2] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 2];
-                residue_matrix->coef[i][j + 3] -= matrix->coef[i][k] * inv_matrix->coef[k][j + 3];
-            }
-        }
-        for (j = unroll_limit; j < size; j++)
-            for (k = kend; k < size; k++)
-                residue_matrix->coef[i][j] -= matrix->coef[i][k] * inv_matrix->coef[k][j];
     }
 }
 
@@ -137,15 +95,15 @@ double calc_norma (matrix_t *residue_matrix, double *residue_time) {
 
     for (line = 0; line < unroll_limit; line += UNROLL_SIZE) {
         for (col = 0; col < size; col++) {
-            norma += residue_matrix->coef[line][col] * residue_matrix->coef[line][col];
-            norma += residue_matrix->coef[line + 1][col] * residue_matrix->coef[line + 1][col];
-            norma += residue_matrix->coef[line + 2][col] * residue_matrix->coef[line + 2][col];
-            norma += residue_matrix->coef[line + 3][col] * residue_matrix->coef[line + 3][col];
+            norma += residue_matrix->coef[col][line] * residue_matrix->coef[col][line];
+            norma += residue_matrix->coef[col][line + 1] * residue_matrix->coef[col][line + 1];
+            norma += residue_matrix->coef[col][line + 2] * residue_matrix->coef[col][line + 2];
+            norma += residue_matrix->coef[col][line + 3] * residue_matrix->coef[line][line + 3];
         }
     }
     for (line = unroll_limit; line < size; line++) 
         for (col = 0; col < size; col++) 
-            norma += residue_matrix->coef[line][col] * residue_matrix->coef[line][col];
+            norma += residue_matrix->coef[col][line] * residue_matrix->coef[col][line];
 
     *residue_time = timestamp () - *residue_time;
     return sqrt (norma);
@@ -195,7 +153,8 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
     int count, sol_count; 
     int size, line, col;
     int unroll_limit, retro_limit, line_size;
-    __m256d sol_avx;
+    __m256d sol_avx, mul_avx;
+    __m128d sum_aux_1, sum_aux_2, sum_final;
 
     size = inv_matrix->n;
     unroll_limit = size - (size % UNROLL_SIZE);
@@ -213,7 +172,7 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
     for (count = 0; count < size; count++) {
         // Retrosubstituição inversa
         for (line = 0; line < size; line++) {
-            temp_sol[line] = i_matrix->coef[line][count];
+            temp_sol[line] = i_matrix->coef[count][line];
             for (col = line - 1; col >= 0; col--)
                 temp_sol[line] -= l_matrix->coef[line][col] * temp_sol[col];
             temp_sol[line] /= l_matrix->coef[line][line];
@@ -238,17 +197,19 @@ int calc_inverse_matrix (matrix_t *restrict inv_matrix, matrix_t *restrict l_mat
             line_size = size - line - 1;
             retro_limit = size - (line_size % 4);
             
-            inv_matrix->coef[line][count] = solution->coef[count][line];
+            inv_matrix->coef[count][line] = solution->coef[count][line];
             for (col = line + 1; col < retro_limit; col += 4) {
-                inv_matrix->coef[line][count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][count];
-                inv_matrix->coef[line][count] -= u_matrix->coef[line][col + 1] * inv_matrix->coef[col + 1][count];
-                inv_matrix->coef[line][count] -= u_matrix->coef[line][col + 2] * inv_matrix->coef[col + 2][count];
-                inv_matrix->coef[line][count] -= u_matrix->coef[line][col + 3] * inv_matrix->coef[col + 3][count];
+                mul_avx = _mm256_mul_pd (_mm256_loadu_pd (&u_matrix->coef[line][col]), _mm256_loadu_pd (&inv_matrix->coef[count][col]));
+                sum_aux_1  = _mm256_castpd256_pd128(mul_avx);
+                sum_aux_2 = _mm256_extractf128_pd(mul_avx, 1);
+                sum_aux_1  = _mm_add_pd(sum_aux_1, sum_aux_2);
+                sum_final = _mm_unpackhi_pd(sum_aux_1, sum_aux_1);
+                inv_matrix->coef[count][line] -= _mm_cvtsd_f64(_mm_add_sd(sum_aux_1, sum_final));
             }
             for (col = retro_limit; col < size; col++) 
-                inv_matrix->coef[line][count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][count];
-            inv_matrix->coef[line][count] /= u_matrix->coef[line][line];
-            // if (isnan (inv_matrix->coef[line][count]) || isinf (inv_matrix->coef[line][count]))
+                inv_matrix->coef[count][line] -= u_matrix->coef[line][col] * inv_matrix->coef[count][col];
+            inv_matrix->coef[count][line] /= u_matrix->coef[line][line];
+            // if (isnan (inv_matrix->coef[count][line]) || isinf (inv_matrix->coef[line][count]))
             //     return NAN_INF_ERROR;
         }
     }
@@ -268,7 +229,8 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
     int size, count, ls_count, sol_count;
     int line, col;
     int unroll_limit, retro_limit, line_size;
-     __m256d sol_avx;
+    __m256d sol_avx, mul_avx;
+    __m128d sum_aux_1, sum_aux_2, sum_final;
 
     *iter_time = 0;
     *residue_time = 0;
@@ -289,14 +251,14 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
         LIKWID_MARKER_START ("calc-residue");
         calc_residue (residue_matrix, matrix, inv_matrix);
         LIKWID_MARKER_STOP ("calc-residue");
-        
-        apply_pivot_steps (residue_matrix, steps);
+
+        apply_transpost_pivot_steps (residue_matrix, steps);
 
         act_iter_time = timestamp ();
         for (ls_count = 0; ls_count < size; ls_count++) {
             // Retrosubstituição inversa
             for (line = 0; line < size; line++) {
-                temp_sol[line] = residue_matrix->coef[line][ls_count];
+                temp_sol[line] = residue_matrix->coef[ls_count][line];
                 for (col = line - 1; col >= 0; col--)
                     temp_sol[line] -= l_matrix->coef[line][col] * temp_sol[col];
                 temp_sol[line] /= l_matrix->coef[line][line];
@@ -321,17 +283,19 @@ int matrix_refinement (matrix_t *restrict inv_matrix, matrix_t *restrict matrix,
                 line_size = size - line - 1;
                 retro_limit = size - (line_size % 4);
                 
-                inv_matrix->coef[line][ls_count] = solution->coef[ls_count][line];
-                for (col = line + 1; col < retro_limit; col += 4) {
-                    inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][ls_count];
-                    inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col + 1] * inv_matrix->coef[col + 1][ls_count];
-                    inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col + 2] * inv_matrix->coef[col + 2][ls_count];
-                    inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col + 3] * inv_matrix->coef[col + 3][ls_count];
+                inv_matrix->coef[ls_count][line] = solution->coef[ls_count][line];
+                for (col = line + 1; col < retro_limit; col += UNROLL_SIZE) {
+                    mul_avx = _mm256_mul_pd (_mm256_loadu_pd (&u_matrix->coef[line][col]), _mm256_loadu_pd (&inv_matrix->coef[ls_count][col]));
+                    sum_aux_1  = _mm256_castpd256_pd128(mul_avx);
+                    sum_aux_2 = _mm256_extractf128_pd(mul_avx, 1);
+                    sum_aux_1  = _mm_add_pd(sum_aux_1, sum_aux_2);
+                    sum_final = _mm_unpackhi_pd(sum_aux_1, sum_aux_1);
+                    inv_matrix->coef[ls_count][line] -= _mm_cvtsd_f64(_mm_add_sd(sum_aux_1, sum_final));
                 }
                 for (col = retro_limit; col < size; col++) 
-                    inv_matrix->coef[line][ls_count] -= u_matrix->coef[line][col] * inv_matrix->coef[col][ls_count];
-                inv_matrix->coef[line][ls_count] /= u_matrix->coef[line][line];
-                // if (isnan (inv_matrix->coef[line][ls_count]) || isinf (inv_matrix->coef[line][ls_count]))
+                    inv_matrix->coef[ls_count][line] -= u_matrix->coef[line][col] * inv_matrix->coef[ls_count][col];
+                inv_matrix->coef[ls_count][line] /= u_matrix->coef[line][line];
+                // if (isnan (inv_matrix->coef[ls_count][line]) || isinf (inv_matrix->coef[ls_count][line]))
                 //     return NAN_INF_ERROR;
             }
         }

@@ -28,35 +28,33 @@ void apply_pivot_steps (matrix_t *matrix, pivot_steps_t *steps) {
         swap_line (matrix, steps->lines[count], steps->pivots[count]);
 }
 
+void apply_transpost_pivot_steps (matrix_t *matrix, pivot_steps_t *steps) {
+    int count;
+    for (count = 0; count < steps->qtd; count++) 
+        swap_transpost_line (matrix, steps->lines[count], steps->pivots[count]);
+}
+
 void swap_line (matrix_t *matrix, int line, int pivot) {
     double m_aux;
     int count, size;
-    int unroll_limit;
     size = matrix->n;
-    unroll_limit = size - (size % UNROLL_SIZE);
 
-    for (count = 0; count < unroll_limit; count += UNROLL_SIZE) {
+    for (count = 0; count < size; count++) {
         m_aux = matrix->coef[line][count];
         matrix->coef[line][count] = matrix->coef[pivot][count];
         matrix->coef[pivot][count] = m_aux;
-
-        m_aux = matrix->coef[line][count + 1];
-        matrix->coef[line][count + 1] = matrix->coef[pivot][count + 1];
-        matrix->coef[pivot][count + 1] = m_aux;
-
-        m_aux = matrix->coef[line][count + 2];
-        matrix->coef[line][count + 2] = matrix->coef[pivot][count + 2];
-        matrix->coef[pivot][count + 2] = m_aux;
-
-        m_aux = matrix->coef[line][count + 3];
-        matrix->coef[line][count + 3] = matrix->coef[pivot][count + 3];
-        matrix->coef[pivot][count + 3] = m_aux;
     }
+}
 
-    for (count = unroll_limit; count < size; count++) {
-        m_aux = matrix->coef[line][count];
-        matrix->coef[line][count] = matrix->coef[pivot][count];
-        matrix->coef[pivot][count] = m_aux;
+void swap_transpost_line (matrix_t *matrix, int line, int pivot) {
+    double m_aux;
+    int count, size;
+    size = matrix->n;
+
+    for (count = 0; count < size; count++) {
+        m_aux = matrix->coef[count][line];
+        matrix->coef[count][line] = matrix->coef[count][pivot];
+        matrix->coef[count][pivot] = m_aux;
     }
 }
 

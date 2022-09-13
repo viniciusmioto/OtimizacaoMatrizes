@@ -133,7 +133,7 @@ int print_result (matrix_t *inv_matrix, double *norma_vet, double lu_time, doubl
         fprintf (p_output, "%d\n", size);
         for(line = 0; line < size; line++) {
             for(col = 0; col < size; col++)
-                fprintf (p_output, "%.15g ", inv_matrix->coef[line][col]);
+                fprintf (p_output, "%.15g ", inv_matrix->coef[col][line]);
             fprintf (p_output, "\n");
         }
         fprintf (p_output,"\n\n");
@@ -145,7 +145,7 @@ int print_result (matrix_t *inv_matrix, double *norma_vet, double lu_time, doubl
         fprintf (stdout, "%d\n", size);
         for(line = 0; line < size; line++) {
             for(col = 0; col < size; col++)
-                fprintf (stdout, "%.15g ", inv_matrix->coef[line][col]);
+                fprintf (stdout, "%.15g ", inv_matrix->coef[col][line]);
             fprintf (stdout, "\n");
         }
         fprintf (stdout,"\n\n");
