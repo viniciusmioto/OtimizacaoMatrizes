@@ -1,0 +1,75 @@
+--------------------------------------------------------------------------------
+CPU name:	AMD Ryzen 5 2600 Six-Core Processor            
+CPU type:	AMD K17 (Zen+) architecture
+CPU clock:	3.39 GHz
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393412525 GHz,
+TABLE,Region lu-factorization,Group 1 Raw,MEM,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],0.016715,
+call count,1,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,65409590
+MAX_CPU_CLOCK,FIXC2,57022250
+RETIRED_INSTRUCTIONS,PMC0,140425000
+CPU_CLOCKS_UNHALTED,PMC1,63110550
+DRAM_CHANNEL_0,DFC0,55052
+DRAM_CHANNEL_1,DFC1,48726
+TABLE,Region lu-factorization,Group 1 Metric,MEM,6
+Metric,HWThread 11,
+Runtime (RDTSC) [s],0.0167,
+Runtime unhalted [s],0.0193,
+Clock [MHz],3892.5458,
+CPI,0.4494,
+Memory bandwidth [MBytes/s],397.3588,
+Memory data volume [GBytes],0.0066,
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393412525 GHz,
+TABLE,Region retrosubs,Group 1 Raw,MEM,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],1.124661,
+call count,1,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,4378302000
+MAX_CPU_CLOCK,FIXC2,3816984000
+RETIRED_INSTRUCTIONS,PMC0,1016102000
+CPU_CLOCKS_UNHALTED,PMC1,4371389000
+DRAM_CHANNEL_0,DFC0,810838
+DRAM_CHANNEL_1,DFC1,746084
+TABLE,Region retrosubs,Group 1 Metric,MEM,6
+Metric,HWThread 11,
+Runtime (RDTSC) [s],1.1247,
+Runtime unhalted [s],1.2902,
+Clock [MHz],3892.4410,
+CPI,4.3021,
+Memory bandwidth [MBytes/s],88.5983,
+Memory data volume [GBytes],0.0996,
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393412525 GHz,
+TABLE,Region calc-residue,Group 1 Raw,MEM,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],7.717094,
+call count,10,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,30043870000
+MAX_CPU_CLOCK,FIXC2,26192090000
+RETIRED_INSTRUCTIONS,PMC0,9445179000
+CPU_CLOCKS_UNHALTED,PMC1,30012240000
+DRAM_CHANNEL_0,DFC0,1946699
+DRAM_CHANNEL_1,DFC1,1651566
+TABLE,Region calc-residue,Group 1 Metric,MEM,6
+Metric,HWThread 11,
+Runtime (RDTSC) [s],7.7171,
+Runtime unhalted [s],8.8536,
+Clock [MHz],3892.4440,
+CPI,3.1775,
+Memory bandwidth [MBytes/s],29.8414,
+Memory data volume [GBytes],0.2303,

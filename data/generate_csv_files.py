@@ -11,8 +11,7 @@ groups = {
     'CACHE': [32, 58, 84],
     'FLOPS_DP': [28, 50, 72]
 }
-# matrix_sizes = [32, 33, 64, 65, 128, 129, 256, 257, 512, 1000, 2000, 4000, 6000]
-matrix_sizes = [32, 33, 64, 65, 128, 129, 256, 257, 512]
+matrix_sizes = [32, 33, 64, 65, 128, 129, 256, 257, 512, 1000, 2000, 4000, 6000]
 versions = ['v1','v2']
 
 df_time = pd.DataFrame(columns=['matrix_size', 'op1-v1', 'op2-v1', 'op1-v2', 'op2-v2'])

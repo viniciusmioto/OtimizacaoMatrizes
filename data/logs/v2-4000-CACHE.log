@@ -1,0 +1,84 @@
+--------------------------------------------------------------------------------
+CPU name:	AMD Ryzen 5 2600 Six-Core Processor            
+CPU type:	AMD K17 (Zen+) architecture
+CPU clock:	3.39 GHz
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393577503 GHz,
+TABLE,Region lu-factorization,Group 1 Raw,CACHE,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],22.681560,
+call count,1,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,88291490000
+MAX_CPU_CLOCK,FIXC2,76972080000
+RETIRED_INSTRUCTIONS,PMC0,64331370000
+CPU_CLOCKS_UNHALTED,PMC1,87787700000
+DATA_CACHE_ACCESSES,PMC2,40305430000
+DATA_CACHE_REFILLS_ALL,PMC3,1518945000
+TABLE,Region lu-factorization,Group 1 Metric,CACHE,9
+Metric,HWThread 11,
+Runtime (RDTSC) [s],22.6816,
+Runtime unhalted [s],26.0172,
+Clock [MHz],3892.6324,
+CPI,1.3646,
+data cache requests,40305430000,
+data cache request rate,0.6265,
+data cache misses,1518945000,
+data cache miss rate,0.0236,
+data cache miss ratio,0.0377,
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393577503 GHz,
+TABLE,Region retrosubs,Group 1 Raw,CACHE,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],154.380200,
+call count,1,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,600945800000
+MAX_CPU_CLOCK,FIXC2,523901500000
+RETIRED_INSTRUCTIONS,PMC0,416988000000
+CPU_CLOCKS_UNHALTED,PMC1,599311000000
+DATA_CACHE_ACCESSES,PMC2,250300700000
+DATA_CACHE_REFILLS_ALL,PMC3,33114420000
+TABLE,Region retrosubs,Group 1 Metric,CACHE,9
+Metric,HWThread 11,
+Runtime (RDTSC) [s],154.3802,
+Runtime unhalted [s],177.0833,
+Clock [MHz],3892.6328,
+CPI,1.4372,
+data cache requests,250300700000,
+data cache request rate,0.6003,
+data cache misses,33114420000,
+data cache miss rate,0.0794,
+data cache miss ratio,0.1323,
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393577503 GHz,
+TABLE,Region calc-residue,Group 1 Raw,CACHE,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],488.718100,
+call count,10,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,1902405000000
+MAX_CPU_CLOCK,FIXC2,1658507000000
+RETIRED_INSTRUCTIONS,PMC0,2525535000000
+CPU_CLOCKS_UNHALTED,PMC1,1898845000000
+DATA_CACHE_ACCESSES,PMC2,2367754000000
+DATA_CACHE_REFILLS_ALL,PMC3,13702810000
+TABLE,Region calc-residue,Group 1 Metric,CACHE,9
+Metric,HWThread 11,
+Runtime (RDTSC) [s],488.7181,
+Runtime unhalted [s],560.5898,
+Clock [MHz],3892.6328,
+CPI,0.7519,
+data cache requests,2367754000000,
+data cache request rate,0.9375,
+data cache misses,13702810000,
+data cache miss rate,0.0054,
+data cache miss ratio,0.0058,

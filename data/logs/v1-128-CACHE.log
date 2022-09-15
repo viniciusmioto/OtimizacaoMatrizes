@@ -1,0 +1,84 @@
+--------------------------------------------------------------------------------
+CPU name:	AMD Ryzen 5 2600 Six-Core Processor            
+CPU type:	AMD K17 (Zen+) architecture
+CPU clock:	3.39 GHz
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393589053 GHz,
+TABLE,Region lu-factorization,Group 1 Raw,CACHE,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],0.000457,
+call count,1,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,1513808
+MAX_CPU_CLOCK,FIXC2,1839230
+RETIRED_INSTRUCTIONS,PMC0,2550556
+CPU_CLOCKS_UNHALTED,PMC1,1202671
+DATA_CACHE_ACCESSES,PMC2,1521528
+DATA_CACHE_REFILLS_ALL,PMC3,32025
+TABLE,Region lu-factorization,Group 1 Metric,CACHE,9
+Metric,HWThread 11,
+Runtime (RDTSC) [s],0.0005,
+Runtime unhalted [s],0.0004,
+Clock [MHz],2793.1484,
+CPI,0.4715,
+data cache requests,1521528,
+data cache request rate,0.5965,
+data cache misses,32025,
+data cache miss rate,0.0126,
+data cache miss ratio,0.0210,
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393589053 GHz,
+TABLE,Region retrosubs,Group 1 Raw,CACHE,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],0.002991,
+call count,1,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,8662216
+MAX_CPU_CLOCK,FIXC2,10533910
+RETIRED_INSTRUCTIONS,PMC0,16332620
+CPU_CLOCKS_UNHALTED,PMC1,8259291
+DATA_CACHE_ACCESSES,PMC2,7687636
+DATA_CACHE_REFILLS_ALL,PMC3,836910
+TABLE,Region retrosubs,Group 1 Metric,CACHE,9
+Metric,HWThread 11,
+Runtime (RDTSC) [s],0.0030,
+Runtime unhalted [s],0.0026,
+Clock [MHz],2790.6068,
+CPI,0.5057,
+data cache requests,7687636,
+data cache request rate,0.4707,
+data cache misses,836910,
+data cache miss rate,0.0512,
+data cache miss ratio,0.1089,
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393589053 GHz,
+TABLE,Region calc-residue,Group 1 Raw,CACHE,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],0.017782,
+call count,10,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,66714830
+MAX_CPU_CLOCK,FIXC2,63122670
+RETIRED_INSTRUCTIONS,PMC0,149995100
+CPU_CLOCKS_UNHALTED,PMC1,63656350
+DATA_CACHE_ACCESSES,PMC2,63922400
+DATA_CACHE_REFILLS_ALL,PMC3,20238430
+TABLE,Region calc-residue,Group 1 Metric,CACHE,9
+Metric,HWThread 11,
+Runtime (RDTSC) [s],0.0178,
+Runtime unhalted [s],0.0197,
+Clock [MHz],3586.7101,
+CPI,0.4244,
+data cache requests,63922400,
+data cache request rate,0.4262,
+data cache misses,20238430,
+data cache miss rate,0.1349,
+data cache miss ratio,0.3166,

@@ -1,0 +1,72 @@
+--------------------------------------------------------------------------------
+CPU name:	AMD Ryzen 5 2600 Six-Core Processor            
+CPU type:	AMD K17 (Zen+) architecture
+CPU clock:	3.39 GHz
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.391378477 GHz,
+TABLE,Region lu-factorization,Group 1 Raw,FLOPS_DP,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],23.718610,
+call count,1,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,92224340000
+MAX_CPU_CLOCK,FIXC2,80491340000
+RETIRED_INSTRUCTIONS,PMC0,64364890000
+CPU_CLOCKS_UNHALTED,PMC1,91705120000
+RETIRED_SSE_AVX_FLOPS_DOUBLE_ALL,PMC2,42650670000
+MERGE,PMC3,0
+TABLE,Region lu-factorization,Group 1 Metric,FLOPS_DP,5
+Metric,HWThread 11,
+Runtime (RDTSC) [s],23.7186,
+Runtime unhalted [s],27.1938,
+Clock [MHz],3885.7303,
+CPI,1.4248,
+DP [MFLOP/s],1798.1943,
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.391378477 GHz,
+TABLE,Region retrosubs,Group 1 Raw,FLOPS_DP,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],146.149800,
+call count,1,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,557716100000
+MAX_CPU_CLOCK,FIXC2,495970700000
+RETIRED_INSTRUCTIONS,PMC0,480576300000
+CPU_CLOCKS_UNHALTED,PMC1,556017700000
+RETIRED_SSE_AVX_FLOPS_DOUBLE_ALL,PMC2,128016000000
+MERGE,PMC3,0
+TABLE,Region retrosubs,Group 1 Metric,FLOPS_DP,5
+Metric,HWThread 11,
+Runtime (RDTSC) [s],146.1498,
+Runtime unhalted [s],164.4512,
+Clock [MHz],3813.5849,
+CPI,1.1570,
+DP [MFLOP/s],875.9232,
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.391378477 GHz,
+TABLE,Region calc-residue,Group 1 Raw,FLOPS_DP,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],3128.796000,
+call count,10,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,12066950000000
+MAX_CPU_CLOCK,FIXC2,10617810000000
+RETIRED_INSTRUCTIONS,PMC0,4483042000000
+CPU_CLOCKS_UNHALTED,PMC1,12042980000000
+RETIRED_SSE_AVX_FLOPS_DOUBLE_ALL,PMC2,1280160000000
+MERGE,PMC3,0
+TABLE,Region calc-residue,Group 1 Metric,FLOPS_DP,5
+Metric,HWThread 11,
+Runtime (RDTSC) [s],3128.7960,
+Runtime unhalted [s],3558.1254,
+Clock [MHz],3854.2406,
+CPI,2.6863,
+DP [MFLOP/s],409.1542,

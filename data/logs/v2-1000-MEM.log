@@ -1,0 +1,75 @@
+--------------------------------------------------------------------------------
+CPU name:	AMD Ryzen 5 2600 Six-Core Processor            
+CPU type:	AMD K17 (Zen+) architecture
+CPU clock:	3.39 GHz
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393346522 GHz,
+TABLE,Region lu-factorization,Group 1 Raw,MEM,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],0.128743,
+call count,1,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,501552000
+MAX_CPU_CLOCK,FIXC2,437246900
+RETIRED_INSTRUCTIONS,PMC0,1020765000
+CPU_CLOCKS_UNHALTED,PMC1,494443500
+DRAM_CHANNEL_0,DFC0,12624900
+DRAM_CHANNEL_1,DFC1,3520277
+TABLE,Region lu-factorization,Group 1 Metric,MEM,6
+Metric,HWThread 11,
+Runtime (RDTSC) [s],0.1287,
+Runtime unhalted [s],0.1478,
+Clock [MHz],3892.3998,
+CPI,0.4844,
+Memory bandwidth [MBytes/s],8025.9751,
+Memory data volume [GBytes],1.0333,
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393346522 GHz,
+TABLE,Region retrosubs,Group 1 Raw,MEM,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],1.083008,
+call count,1,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,4215749000
+MAX_CPU_CLOCK,FIXC2,3675268000
+RETIRED_INSTRUCTIONS,PMC0,6561733000
+CPU_CLOCKS_UNHALTED,PMC1,4192730000
+DRAM_CHANNEL_0,DFC0,116056400
+DRAM_CHANNEL_1,DFC1,26529200
+TABLE,Region retrosubs,Group 1 Metric,MEM,6
+Metric,HWThread 11,
+Runtime (RDTSC) [s],1.0830,
+Runtime unhalted [s],1.2424,
+Clock [MHz],3892.3684,
+CPI,0.6390,
+Memory bandwidth [MBytes/s],8426.0489,
+Memory data volume [GBytes],9.1255,
+STRUCT,Info,3
+CPU name:,AMD Ryzen 5 2600 Six-Core Processor            ,
+CPU type:,AMD K17 (Zen+) architecture,
+CPU clock:,3.393346522 GHz,
+TABLE,Region calc-residue,Group 1 Raw,MEM,6
+Region Info,HWThread 11,
+RDTSC Runtime [s],5.149921,
+call count,10,
+Event,Counter,HWThread 11
+ACTUAL_CPU_CLOCK,FIXC1,20049010000
+MAX_CPU_CLOCK,FIXC2,17478620000
+RETIRED_INSTRUCTIONS,PMC0,39486650000
+CPU_CLOCKS_UNHALTED,PMC1,19999730000
+DRAM_CHANNEL_0,DFC0,37622990
+DRAM_CHANNEL_1,DFC1,4634792
+TABLE,Region calc-residue,Group 1 Metric,MEM,6
+Metric,HWThread 11,
+Runtime (RDTSC) [s],5.1499,
+Runtime unhalted [s],5.9083,
+Clock [MHz],3892.3690,
+CPI,0.5065,
+Memory bandwidth [MBytes/s],525.1533,
+Memory data volume [GBytes],2.7045,
